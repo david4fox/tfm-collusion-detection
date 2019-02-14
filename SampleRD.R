@@ -1,6 +1,22 @@
+## Input
+numberOfBids <- 20
+numberOfContracts <- 1000
+numberOfBreaks <- 50
 
+## Main function
+funtionSampleRD <- function(numberOfBids, numberOfContracts, numberOfBreaks){
+  listOfSamples <- list()
+  sampleRD <- data.frame()
+  for(i in c(1:numberOfContracts)){
+    listOfSamples[i] <- list(sort(sample(50:100, numberOfBids, replace=TRUE)))
+    sampleRD[i,1] <- (listOfSamples[[i]][2]-listOfSamples[[i]][1])/sd(listOfSamples[[i]][2:numberOfBids])
+  }
+         
+  sampleRD <- sort(sampleRD[,1], decreasing = TRUE)
+  
+  hist(sampleRD, main = "Distribution", breaks = numberOfBreaks, border = "orange", col = "yellow")
+  return(sampleRD)
+}
 
-## Numeros aleatorios del 1 al 100, 1000 numeros con posibilidad de repeticion
-sample(1:100, 1000, replace=TRUE)
-
-       
+## Function
+funtionSampleRD(numberOfBids, numberOfContracts, numberOfBreaks)
