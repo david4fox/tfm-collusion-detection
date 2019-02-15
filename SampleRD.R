@@ -13,7 +13,7 @@ header <- dashboardHeader(
 sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("Distribution", tabName = "menu1", icon = icon("dashboard")),
-    sliderInput(inputId = "numberOfContracts", label = "Number of contracts :", min = 0, max = 10000, value = 1000, width = "100%"),
+    sliderInput(inputId = "numberOfContracts", label = "Number of contracts :", min = 1, max = 10000, value = 1000, width = "100%"),
     sliderInput(inputId = "numberOfBreaks", label = "Number of breaks :", min = 10, max = 10000, value = 1000, width = "100%"),
     sliderInput(inputId = "numberOfBidsMin", label = "Minimun number of bids :", min = 5, max = 15, value = 10, width = "100%"),
     sliderInput(inputId = "numberOfBidsMax", label = "Maximun number of bids :", min = 15, max = 30, value = 20, width = "100%"),
