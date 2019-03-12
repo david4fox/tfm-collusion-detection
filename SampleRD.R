@@ -1,16 +1,19 @@
 # Libraries
-library(shiny)
-library(shinyjs)
-library(shinythemes)
-library(shinyWidgets)
-library(shinydashboard)
-
+library("shiny")
+library("shinyjs")
+library("shinythemes")
+library("shinyWidgets")
+library("shinydashboard")
+library("igraph")
+library("network")
+library("sna")
+library("ndtv")
 
 header <- dashboardHeader(
   title = "SampleRD",
   titleWidth = 230,
   tags$li(a(href = 'https://www.ubu.es/',
-            img(src = "https://www.ubu.es/sites/default/files/portal_page/images/escudo_color_2l_dcha_7.jpg", title = "Universidad de Burgos", height = "30px"),
+            img(src = "./escudo_COLOR_2L_DCHA.png", title = "Universidad de Burgos", height = "30px"),
             style = "padding-top:10px; padding-bottom:10px;"),
           class = "dropdown"),
   tags$li(a(href = 'http://www.google.com/',
