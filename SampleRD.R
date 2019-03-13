@@ -74,7 +74,7 @@ server <- function(input, output) {
         aux1 <- sample(input$numberOfBids[1]:input$numberOfBids[2],1)
       }
       aux2 <- sample(10:70,1)
-      listOfSamples[i] <- list(sort(c(aux2,sample(c(sample(aux2+1:70+1,1):sample(80:150,1)), aux1, replace=TRUE))))
+      listOfSamples[i] <- list(sort(c(aux2,sample(c(sample(aux2:70+1,1):sample(80:150,1)), aux1, replace=TRUE))))
       sampleRD[i,1] <- (listOfSamples[[i]][2]-listOfSamples[[i]][1])/sd(listOfSamples[[i]][2:aux1])
     }
     sampleRD_frame <<- data.frame("RD" = sampleRD[with(sampleRD, order(sampleRD[,1])), ])
