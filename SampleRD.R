@@ -23,33 +23,46 @@ header <- dashboardHeader(
 )
 sidebar <- dashboardSidebar(
   sidebarMenu(
-    menuItem("Distribution", tabName = "menu1", icon = icon("dashboard")),
+    menuItem("Relative Distance", tabName = "menu1", icon = icon("dashboard")),
     sliderInput(inputId = "numberOfContracts", label = "Number of contracts :", min = 1, max = 10000, value = 1000, width = "100%", round = TRUE),
     sliderInput(inputId = "numberOfBids", label = "Number of bids :", min = 5, max = 30, value = c(10,20), width = "100%",ticks = TRUE),
-    box(title = "Visual parameters", status = "primary", collapsible = TRUE, width = "100%", background = "navy", solidHeader = TRUE,
-        sliderInput(inputId = "numberOfBins", label = "Number of bins :", min = 10, max = 10000, value = 1000, width = "100%"),
-        sliderInput(inputId = "xLimt", label = "Maximun limit of the x axys :", min = 1, max = 100, value = 50, width = "100%")
-    ),
-    box(title = "Statistics", width = "100%",status = "primary", background = "light-blue",
-        "Mean :",textOutput("media"), br(),"Median :",textOutput("mediana"), br(),"Deviation :",textOutput("desviacion")
-    ),
-    menuItem("Data table", tabName = "menu2", icon = icon("table"))
+    menuItem("Coeficient of Variation", tabName = "menu2", icon = icon("table")),
+    menuItem("Data table", tabName = "menu3", icon = icon("table"))
   )
 )
 body <- dashboardBody(
   tabItems(
     tabItem(tabName = "menu1",
-            h2("Distribution"),
-            plotOutput("histograma"),
-            br(),
-            numericInput("RD", label = h3("Introduce the relative distance (RD)"), value = 1, width = "100%", min = 0, max = 100),
-            br(),
-            box(title = "Probability of introduced relative distance", width = "100%",status = "primary", background = "light-blue",
-                "Probability 1:",textOutput("pBaja"),br(),"Probability 2:",textOutput("pAlta"),"RD (p = 0.05)",textOutput("p05")
-           )
+            fluidRow(
+              column(4,h2("Relative distance distribution")),
+              column(7,h2("")),
+              column(1,actionButton("calculate", align="center",label=list(strong("Compute  "), icon("calculator")), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
+              ),
+            fluidRow(
+              column(9, plotOutput("histograma")),
+              column(3,box(title = list(icon("chart-area"),"Statistics"), width = "100%",status = "primary", background = "navy", solidHeader = TRUE,
+                           "Mean :",textOutput("media"), br(),"Median :",textOutput("mediana"), br(),"Deviation :",textOutput("desviacion"),br(),"Probability 1:",textOutput("pBaja"),br(),"Probability 2:",textOutput("pAlta"),br(),"RD (p = 0.05)",textOutput("p05")
+              ))
+            ),
+            fluidRow(
+              column(9,sliderInput(inputId = "xLimt", label = "Maximun limit of the x axys :", min = 1, max = 100, value = 50, width = "100%")),
+              column(3,sliderInput(inputId = "numberOfBins", label = "Number of bins :", min = 10, max = 10000, value = 1000, width = "100%"))
+            ),
+            fluidRow(
+              column(4,numericInput("RD", label = h3("Introduce a relative distance (RD)"), value = 1, width = "100%", min = 0, max = 100,step = 0.1)),
+              column(4,h2("dfsdsdd"))
+            ),
+            fluidRow(
+              column(4,numericInput("Probability", label = h3("Introduce a probability"), value = 0.5, width = "100%", min = 0, max = 1,step = 0.01)),
+              column(4,h2("edddd"))
+            )
     ),
     tabItem(
       tabName = "menu2",
+      h2("Coeficient of Variation")
+    ),
+    tabItem(
+      tabName = "menu3",
       h2("Data table"),
       dataTableOutput("tabla")
     )
@@ -82,7 +95,7 @@ server <- function(input, output) {
   }
   
   functionHistogram <- function(sampleRD,numberOfBins,xLimt){
-    output$histograma <- renderPlot({hist(sampleRD, main = "Distribution", breaks = numberOfBins, border = "orange", col = "yellow", xlab = "RD", xlim = c(0,xLimt))
+    output$histograma <- renderPlot({hist(sampleRD, main = "Distribution", breaks = numberOfBins, border = "#0050DC", col = "#166BFF", xlab = "RD", xlim = c(0,xLimt))
                                       abline(v = input$RD, col = "red")
                                      })
   }
@@ -112,18 +125,17 @@ server <- function(input, output) {
     output$tabla <<- renderDataTable(sampleRD_frame)
   }
   
-  observeEvent(input$numberOfContracts|input$numberOfBids[2]|input$numberOfBids[1],{
-    funtionSampleRD(input$numberOfBids[1], input$numberOfBids[2], input$numberOfContracts)
-    functionHistogram(sampleRD, input$numberOfBins, input$xLimt)
-    functionStatictics(sampleRD_frame)
-  })
-  
   observeEvent(input$RD,{
     functionStatictics(sampleRD_frame)
   })
-  
+
   observeEvent(input$numberOfBins|input$xLimt,{
     functionHistogram(sampleRD, input$numberOfBins, input$xLimt)
+  })
+  observeEvent(input$calculate,{
+    funtionSampleRD(input$numberOfBids[1], input$numberOfBids[2], input$numberOfContracts)
+    functionHistogram(sampleRD, input$numberOfBins, input$xLimt)
+    functionStatictics(sampleRD_frame)
   })
 }
 
