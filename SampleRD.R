@@ -9,6 +9,11 @@ library("network")
 library("sna")
 library("ndtv")
 
+## Inicialization
+rangeOfBidsDefault <- c(15,20)
+numberOfContractsDefault <- 500
+
+## Aplication definition
 header <- dashboardHeader(
   title = "Markers",
   titleWidth = 230,
@@ -23,8 +28,8 @@ header <- dashboardHeader(
 )
 sidebar <- dashboardSidebar(
   sidebarMenu(
-    sliderInput(inputId = "numberOfContracts", label = "Number of contracts :", min = 1, max = 10000, value = 500, width = "100%", round = TRUE),
-    sliderInput(inputId = "rangeOfBids", label = "Number of bids :", min = 5, max = 30, value = c(10,20), width = "100%",ticks = TRUE),
+    sliderInput(inputId = "numberOfContracts", label = "Number of contracts :", min = 1, max = 10000, value = numberOfContractsDefault, width = "100%", round = TRUE),
+    sliderInput(inputId = "rangeOfBids", label = "Number of bids :", min = 5, max = 30, value = rangeOfBidsDefault, width = "100%",ticks = TRUE),
     menuItem("Relative Distance", tabName = "menu1", icon = icon("dashboard")),
     menuItem("Coeficient of Variation", tabName = "menu2", icon = icon("table")),
     menuItem("Data table", tabName = "menu3", icon = icon("table"))
@@ -80,7 +85,7 @@ server <- function(input, output) {
   })
 
   ## Main function
-  funtionSampleRD <- function(rangeOfBids, numberOfContracts){
+  funtionSample <- function(rangeOfBids, numberOfContracts){
     listOfSamples <- list()
     sampleRD <- data.frame()
     sampleCV <- data.frame()
@@ -115,8 +120,8 @@ server <- function(input, output) {
   }
   
   ## Histogram function RD
-  functionHistogramRD <- function(sampleRD,numberOfBins,xLimt,insertRD, estimatedRD){
-    output$histogramaRD <- renderPlot({hist(sampleRD, main = "Distribution", breaks = numberOfBins, border = "#0050DC", col = "#166BFF", xlab = "RD", xlim = c(0,xLimt))
+  functionHistogramRD <- function(sampleRD_frame,numberOfBins,xLimt,insertRD, estimatedRD){
+    output$histogramaRD <- renderPlot({hist(sampleRD_frame$RD, main = "Distribution", breaks = numberOfBins, border = "#0050DC", col = "#166BFF", xlab = "RD", xlim = c(0,xLimt))
       abline(v = insertRD, col = "red")
       abline(v = calculoRD, col = "orange")
     })
@@ -130,7 +135,7 @@ server <- function(input, output) {
   
   ## Statictics function
   functionStatictics <- function(sampleRD_frame){
-    
+
     calculoP05 <- sampleRD_frame[max(which(sampleRD_frame[,2]<=0.95)),1]
     calculoMedia <- mean(sampleRD_frame[,1])
     calculoMediana <- sampleRD_frame[ceiling(nrow(sampleRD_frame)/2),1]
@@ -143,31 +148,35 @@ server <- function(input, output) {
     output$tabla <<- renderDataTable(sampleRD_frame)
   }
   
+  ## First values
+  funtionSample(rangeOfBidsDefault, numberOfContractsDefault)
+  functionHistogramRD(sampleRD_frame, input$numberOfBins, input$xLimt, input$insertRD, output$estimatedRD)
+  functionStatictics(sampleRD_frame)
+  functionHistogramCV(sampleCV)
+  
   observeEvent(input$insertRD,{
     calculoProbabilidadBaja <- (sampleRD_frame[max(which(sampleRD_frame[,1] <= input$insertRD)),2]+sampleRD_frame[min(which(sampleRD_frame[,1] >= input$insertRD)),2])/2
     calculoProbabilidadAlta <- 1-calculoProbabilidadBaja
     output$pAlta <<- renderText({paste0(format(x = calculoProbabilidadAlta,digits = 4))})
     output$pBaja <<- renderText({paste0(format(x = calculoProbabilidadBaja,digits = 4))})
-    functionHistogramRD(sampleRD, input$numberOfBins, input$xLimt, input$insertRD, output$estimatedRD)
+    functionHistogramRD(sampleRD_frame, input$numberOfBins, input$xLimt, input$insertRD, output$estimatedRD)
   })
   
   observeEvent(input$insertProbability,{
     calculoRD <<- sampleRD_frame[max(which(sampleRD_frame[,2] <= input$insertProbability)),1]
     output$estimatedRD <<- renderText({paste0(format(x = calculoRD,digits = 2))})
-    functionHistogramRD(sampleRD, input$numberOfBins, input$xLimt, input$insertRD, output$estimatedRD)
+    functionHistogramRD(sampleRD_frame, input$numberOfBins, input$xLimt, input$insertRD, output$estimatedRD)
   })
 
   observeEvent(input$numberOfBins|input$xLimt,{
-    functionHistogramRD(sampleRD, input$numberOfBins, input$xLimt, input$insertRD, output$estimatedRD)
+    functionHistogramRD(sampleRD_frame, input$numberOfBins, input$xLimt, input$insertRD, output$estimatedRD)
   })
   
   observeEvent(input$calculate,{
-    funtionSampleRD(input$rangeOfBids, input$numberOfContracts)
-    functionHistogramRD(sampleRD, input$numberOfBins, input$xLimt, input$insertRD, output$estimatedRD)
+    funtionSample(input$rangeOfBids, input$numberOfContracts)
+    functionHistogramRD(sampleRD_frame, input$numberOfBins, input$xLimt, input$insertRD, output$estimatedRD)
     functionStatictics(sampleRD_frame)
   })
-  
-  functionHistogramCV(sampleCV)
 }
 
 shinyApp(ui, server, options = list(launch.browser=TRUE))
