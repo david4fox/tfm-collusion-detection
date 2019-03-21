@@ -16,7 +16,8 @@ xLimtDefault <- 5
 yLimtDefault <- 100
 insertRDDefault <- 1
 insertProbabilityDefault <- 0.5
-numberOfBinsDefault <- 250
+numberOfBinsRDDefault <- 250
+numberOfBinsCVDefault <- 250
 
 ## Aplication definition
 header <- dashboardHeader(
@@ -55,13 +56,13 @@ body <- dashboardBody(
                             h5("Median :"),textOutput("mediana"), br(),
                             h5("Deviation :"),textOutput("desviacion"),br(),
                             h5("Something more"),br()
-              )
+                        )
               )
             ),
             fluidRow(
               column(4, sliderInput(inputId = "xLimt", label = "Maximun limit of the x axys :", min = 0.1, max = 10, value = xLimtDefault, width = "100%")),
               column(4, sliderInput(inputId = "yLimt", label = "Maximun limit of the y axys :", min = 1, max = 1000, value = yLimtDefault, width = "100%")),
-              column(4, sliderInput(inputId = "numberOfBins", label = "Number of bins :", min = 10, max = 10000, value = numberOfBinsDefault, width = "100%"))
+              column(4, sliderInput(inputId = "numberOfBinsRD", label = "Number of bins :", min = 10, max = 10000, value = numberOfBinsRDDefault, width = "100%"))
             ),
             fluidRow(
               column(4, numericInput("insertRD", label = h3("Introduce a relative distance (RD)"), value = insertRDDefault, width = "100%", min = 0, max = 100,step = 0.1)),
@@ -74,8 +75,18 @@ body <- dashboardBody(
     ),
     tabItem(
       tabName = "menu2",
-      h2("Coeficient of Variation"),
-      plotOutput("histogramaCV")
+      h2("Coeficient of variation distribution"),
+      fluidRow(
+        column(8, plotOutput("histogramaCV")),
+        column(4, box(title = list(icon("chart-area"),"Statistics"), width = "100%",status = "primary", background = "navy", solidHeader = TRUE,
+                      h5("Something more"),br()
+                  )
+        )
+      ),
+      fluidRow(
+        column(8,h5("Something more")),
+        column(4, sliderInput(inputId = "numberOfBinsCV", label = "Number of bins :", min = 10, max = 1000, value = numberOfBinsCVDefault, width = "100%"))
+      )
     ),
     tabItem(
       tabName = "menu3",
@@ -128,63 +139,69 @@ server <- function(input, output) {
   }
   
   ## Histogram function RD
-  functionHistogramRD <- function(sampleRD_frame,numberOfBins, xLimt, yLimt,insertRD, insertProbability){
+  functionHistogramRD <- function(sampleRD_frame,numberOfBinsRD, xLimt, yLimt,insertRD, insertProbability){
     calculoRD <<- sampleRD_frame[max(which(sampleRD_frame[,2] <= insertProbability)),1]
-    output$histogramaRD <- renderPlot({hist(sampleRD_frame$RD, main = "Distribution", breaks = numberOfBins, border = "#0050DC", col = "#166BFF", xlab = "RD", xlim = c(0,xLimt), ylim = c(0,yLimt))
+    output$histogramaRD <- renderPlot({hist(sampleRD_frame$RD, main = "Distribution", breaks = numberOfBinsRD, border = "#0050DC", col = "#166BFF", xlab = "RD", xlim = c(0,xLimt), ylim = c(0,yLimt))
       abline(v = insertRD, col = "red")
       abline(v = calculoRD, col = "orange")
     })
   }
   
   ## Histogram function CV
-  functionHistogramCV <- function(sampleCV){
-    output$histogramaCV <- renderPlot({hist(sampleCV, main = "Distribution", breaks = 1000, border = "#0050DC", col = "#166BFF", xlab = "CV")
+  functionHistogramCV <- function(sampleCV_frame, numberOfBinsCV){
+    output$histogramaCV <- renderPlot({hist(sampleCV_frame$CV, main = "Distribution", breaks = numberOfBinsCV, border = "#0050DC", col = "#166BFF", xlab = "CV")
     })
   }
   
   ## Statictics function
-  functionStatictics <- function(sampleRD_frame){
+  functionStatictics <- function(){
     
     calculoP05 <- sampleRD_frame[max(which(sampleRD_frame[,2]<=0.95)),1]
     calculoMedia <- mean(sampleRD_frame[,1])
     calculoMediana <- sampleRD_frame[ceiling(nrow(sampleRD_frame)/2),1]
     calculoDesviacion <- sd(sampleRD_frame[,1])
+    calculoTabla <- cbind(sampleRD_frame,sampleCV_frame)
+    colnames(calculoTabla) <- c("RD Valor","RD probability","CV Valor","CV probability")
     
     output$media <<- renderText({paste0(format(x = calculoMedia,digits = 4))})
     output$mediana <<- renderText({paste0(format(x = calculoMediana,digits = 4))})
     output$desviacion <<- renderText({paste0(format(x = calculoDesviacion,digits = 4))})
     output$p05 <<- renderText({paste0(format(x = calculoP05,digits = 4))})
-    output$tabla <<- renderDataTable(sampleRD_frame)
+    output$tabla <<- renderDataTable(calculoTabla)
   }
   
   ## First values
   funtionSample(rangeOfBidsDefault, numberOfContractsDefault)
-  functionStatictics(sampleRD_frame)
-  functionHistogramRD(sampleRD_frame, numberOfBinsDefault, xLimtDefault, yLimtDefault, insertRDDefault, insertProbabilityDefault)
-  functionHistogramCV(sampleCV)
+  functionStatictics()
+  functionHistogramRD(sampleRD_frame, numberOfBinsRDDefault, xLimtDefault, yLimtDefault, insertRDDefault, insertProbabilityDefault)
+  functionHistogramCV(sampleCV_frame,numberOfBinsCVDefault)
   
   observeEvent(input$insertRD,{
     calculoProbabilidadBaja <- (sampleRD_frame[max(which(sampleRD_frame[,1] <= input$insertRD)),2]+sampleRD_frame[min(which(sampleRD_frame[,1] >= input$insertRD)),2])/2
     calculoProbabilidadAlta <- 1-calculoProbabilidadBaja
     output$pAlta <<- renderText({paste0(format(x = calculoProbabilidadAlta,digits = 4))})
     output$pBaja <<- renderText({paste0(format(x = calculoProbabilidadBaja,digits = 4))})
-    functionHistogramRD(sampleRD_frame, input$numberOfBins, input$xLimt, input$yLimt, input$insertRD, input$insertProbability)
+    functionHistogramRD(sampleRD_frame, input$numberOfBinsRD, input$xLimt, input$yLimt, input$insertRD, input$insertProbability)
   })
   
   observeEvent(input$insertProbability,{
     calculoRD <- sampleRD_frame[max(which(sampleRD_frame[,2] <= input$insertProbability)),1]
     output$estimatedRD <<- renderText({paste0(format(x = calculoRD,digits = 2))})
-    functionHistogramRD(sampleRD_frame, input$numberOfBins, input$xLimt, input$yLimt, input$insertRD, input$insertProbability)
+    functionHistogramRD(sampleRD_frame, input$numberOfBinsRD, input$xLimt, input$yLimt, input$insertRD, input$insertProbability)
   })
   
-  observeEvent(input$numberOfBins|input$xLimt|input$yLimt,{
-    functionHistogramRD(sampleRD_frame, input$numberOfBins, input$xLimt, input$yLimt, input$insertRD, input$insertProbability)
+  observeEvent(input$numberOfBinsRD|input$xLimt|input$yLimt,{
+    functionHistogramRD(sampleRD_frame, input$numberOfBinsRD, input$xLimt, input$yLimt, input$insertRD, input$insertProbability)
+  })
+  
+  observeEvent(input$numberOfBinsCV,{
+    functionHistogramCV(sampleCV_frame, input$numberOfBinsCV)
   })
   
   observeEvent(input$calculate,{
     funtionSample(input$rangeOfBids, input$numberOfContracts)
-    functionHistogramRD(sampleRD_frame, input$numberOfBins, input$xLimt, input$yLimt, input$insertRD, input$insertProbability)
-    functionStatictics(sampleRD_frame)
+    functionHistogramRD(sampleRD_frame, input$numberOfBinsRD, input$xLimt, input$yLimt, input$insertRD, input$insertProbability)
+    functionStatictics()
   })
 }
 
