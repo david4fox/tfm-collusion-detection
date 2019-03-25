@@ -15,7 +15,8 @@ header <- dashboardHeader(
 )
 sidebar <- dashboardSidebar(
   sidebarMenu(
-    menuItem("File input", tabName = "menu1", icon = icon("dashboard"))
+    menuItem("File input", tabName = "menu1", icon = icon("dashboard")),
+    menuItem("DataTable", tabName = "menu2", icon = icon("table"))
   )
 )
 body <- dashboardBody(
@@ -25,6 +26,11 @@ body <- dashboardBody(
       fileInput("xlsxFile", label = h3("Upload a xlsx file"), multiple = FALSE,placeholder = "No file selected",buttonLabel = "Browse...",width = "250px",accept = c(".xlsx")),
       fileInput("csvFile", label = h3("Upload a csv file"), multiple = FALSE, placeholder = "No file selected",buttonLabel = "Browse...",width = "250px",accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
       tableOutput("tabla")
+    ),
+    tabItem(
+      tabName = "menu2",
+      h2("Data table"),
+      dataTableOutput("markersTable")
     )
   )
 )
@@ -38,25 +44,56 @@ server <- function(input, output) {
     
     req(input$csvFile)
     
-    tryCatch(
-      {
-        df <- read.csv(input$csvFile$datapath,
-                       header = TRUE,
-                       sep = ";")
-      },
-      error = function(e) {
-        # return a safeError if a parsing error occurs
-        stop(safeError(e))
-      }
-    )
+    tryCatch({
+      df <- read.csv(input$csvFile$datapath,
+                     header = TRUE,
+                     sep = ";")
+    },
+    error = function(e) {
+      # return a safeError if a parsing error occurs
+      stop(safeError(e))
+    })
     
-    tablaCSV <- data.frame(df)
-    tablaCSV[tablaCSV==""]=NA
-    tablaCSV <<- tablaCSV
+    df <- data.frame(df)
+    df[is.na(df)]=""
     return(df)
+  })
+  
+  output$markersTable <- renderDataTable({
+    
+    req(input$csvFile)
+    
+    tryCatch({
+      tablaCSV <- read.csv(input$csvFile$datapath,
+                     header = TRUE,
+                     sep = ";")
+    },
+    error = function(e) {
+      # return a safeError if a parsing error occurs
+      stop(safeError(e))
+    })
+    
+    tablaCSV[tablaCSV==""]=NA
+    
+    tableMarkers <- data.frame("Contracts" = tablaCSV[,1])
+    tableMarkers$CV <- 0
+    tableMarkers$RD <- 0
+    for(i in 1:nrow(tablaCSV)){
+      Bids <- c()
+      for(j in seq(from=3, to=ncol(tablaCSV), by=2)){
+        if(!is.na(tablaCSV[i,j])){
+          Bids <- append(Bids,as.numeric(tablaCSV[i,j]))
+        }
+      }
+      tableMarkers$CV[i] <- sd(Bids)/mean(Bids)
+      Bids <- sort(Bids,decreasing = FALSE)
+      tableMarkers$RD[i] <- (Bids[2]-Bids[1])/sd(Bids[2:length(Bids)])
+    }
+    
+    tableMarkers <<- tableMarkers
+    return(tableMarkers)
   })
 
 }
-
 shinyApp(ui, server, options = list(launch.browser=TRUE))
 
