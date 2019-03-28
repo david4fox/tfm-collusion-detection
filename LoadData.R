@@ -90,6 +90,8 @@ server <- function(input, output) {
       tableMarkers$RD[i] <- (Bids[2]-Bids[1])/sd(Bids[2:length(Bids)])
     }
     
+    tableMarkers$Suspicius <- ""
+    tableMarkers$Suspicius[tableMarkers$RD>1&tableMarkers$CV<=0.06]="Suspicius"
     tableMarkers <<- tableMarkers
     return(tableMarkers)
   })
