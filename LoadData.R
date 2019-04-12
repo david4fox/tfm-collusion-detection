@@ -10,7 +10,7 @@ library("plotly")
 
 
 ## Inicialization
-
+tableMarkers <- 0
 
 ## Aplication definition
 header <- dashboardHeader(
@@ -20,16 +20,26 @@ sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("File input", tabName = "menu1", icon = icon("file-upload")),
     menuItem("DataTable", tabName = "menu2", icon = icon("table")),
-    menuItem("2D graph", tabName = "menu3", icon = icon("chart-scatter"))
+    menuItem("2D graph", tabName = "menu3", icon = icon("chart-scatter")),
+    menuItem("tabalaas", tabName = "menu4", icon = icon("chart-scatter"))
   )
 )
 body <- dashboardBody(
   tabItems(
     tabItem(
       tabName = "menu1",
-      fileInput("xlsxFile", label = h3("Upload a xlsx file"), multiple = FALSE,placeholder = "No file selected",buttonLabel = "Browse...",width = "250px",accept = c(".xlsx")),
-      fileInput("csvFile", label = h3("Upload a csv file"), multiple = FALSE, placeholder = "No file selected",buttonLabel = "Browse...",width = "250px",accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
-      tableOutput("tabla")
+      fluidRow(
+        column(3, fileInput("xlsxFile", label = h3("Upload a xlsx file"), multiple = FALSE,placeholder = "No file selected",buttonLabel = "Browse...",width = "100%",accept = c(".xlsx"))),
+        column(4, h6("")),
+        column(2, actionButton("summitXLSX", label = "Summit Excel", icon = icon("table"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
+      ),
+      fluidRow(
+        column(3, fileInput("csvFile", label = h3("Upload a csv file"), multiple = FALSE, placeholder = "No file selected",buttonLabel = "Browse...",width = "100%",accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv"))),
+        column(4, radioButtons("sep", h3("Separator"), choices = c(Comma = ",", Semicolon = ";", Tab = "\t"), selected = ";", inline = TRUE)),
+        column(2, actionButton("summitCSV", label = "Summit Csv", icon = icon("table"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
+      ),
+      tableOutput("tabla1"),
+      tableOutput("tabla2")
     ),
     tabItem(
       tabName = "menu2",
@@ -43,10 +53,10 @@ body <- dashboardBody(
           box(fluidRow(
             column(4, radioButtons("firmOne", label = h4("Select one firm:"),
                                    choices = list("Firm1" = "Firm1", "Firm2" = "Firm2", "Firm3" = "Firm3", "Firm4" = "Firm4", "Firm5" = "Firm5", "Firm6" = "Firm6", "Firm7" = "Firm7", "Firm8" = "Firm8", "Firm9" = "Firm9", "Firm10" = "Firm10"), 
-                                   selected = 1)),
+                                   selected = "Firm1")),
             column(4, radioButtons("firmTwo", label = h4("Select another different firm:"),
                                    choices = list("Firm1" = "Firm1", "Firm2" = "Firm2", "Firm3" = "Firm3", "Firm4" = "Firm4", "Firm5" = "Firm5", "Firm6" = "Firm6", "Firm7" = "Firm7", "Firm8" = "Firm8", "Firm9" = "Firm9", "Firm10" = "Firm10"), 
-                                   selected = 2))
+                                   selected = "Firm2"))
           ),
           width = "100%",
           height = "350px",
@@ -58,6 +68,10 @@ body <- dashboardBody(
       fluidRow(
         column(10, plotlyOutput("Graph2D"))
       )
+    ),
+    tabItem(
+      tabName = "menu4",
+      textOutput("prueba11")
     )
   )
 )
@@ -66,64 +80,10 @@ ui <- dashboardPage(header, sidebar, body)
 
 server <- function(input, output) {
   
-  #https://shiny.rstudio.com/gallery/file-upload.html
-  output$tabla <- renderTable({
+  graphic2Dfuntion <- function(FirstFirm, SecondFirm){
     
-    req(input$csvFile)
+    BidData <- read.csv("E:/Storage/Github/TFM/tableCSV.csv", header = TRUE)
     
-    tryCatch({
-      df <- read.csv(input$csvFile$datapath,
-                     header = TRUE,
-                     sep = ";")
-    },
-    error = function(e) {
-      # return a safeError if a parsing error occurs
-      stop(safeError(e))
-    })
-    
-    df <- data.frame(df)
-    df[is.na(df)]=""
-    return(df)
-  })
-  
-  output$markersTable <- renderDataTable({
-    
-    req(input$csvFile)
-    
-    tryCatch({
-      tablaCSV <- read.csv(input$csvFile$datapath,
-                     header = TRUE,
-                     sep = ";")
-    },
-    error = function(e) {
-      # return a safeError if a parsing error occurs
-      stop(safeError(e))
-    })
-    
-    tablaCSV[tablaCSV==""]=NA
-    
-    tableMarkers <- data.frame("Contracts" = tablaCSV[,1])
-    tableMarkers$CV <- 0
-    tableMarkers$RD <- 0
-    for(i in 1:nrow(tablaCSV)){
-      Bids <- c()
-      for(j in seq(from=3, to=ncol(tablaCSV), by=2)){
-        if(!is.na(tablaCSV[i,j])){
-          Bids <- append(Bids,as.numeric(tablaCSV[i,j]))
-        }
-      }
-      tableMarkers$CV[i] <- sd(Bids)/mean(Bids)
-      Bids <- sort(Bids,decreasing = FALSE)
-      tableMarkers$RD[i] <- (Bids[2]-Bids[1])/sd(Bids[2:length(Bids)])
-    }
-    
-    tableMarkers$Suspicius <- ""
-    tableMarkers$Suspicius[tableMarkers$RD>1&tableMarkers$CV<=0.06]="Suspicius"
-    tableMarkers <<- tableMarkers
-    return(tableMarkers)
-  })
-  
-  graphic2Dfuntion <- function(FirstFirm, SecondFirm, BidData){
     a <- which(BidData == FirstFirm, arr.ind = TRUE)
     b <- which(BidData == SecondFirm, arr.ind = TRUE)
     communContracts <- c()
@@ -166,7 +126,7 @@ server <- function(input, output) {
     colnames(comparisonTable) <- c("Contracts", FirstFirm, SecondFirm, "MaxBid", "MinBid",paste0(FirstFirm,"_Nomalized"),paste0(SecondFirm,"_Nomalized"),"CompetitiveZones","Competitive","NonCompetitive")
     
     graphic <- plot_ly(data = comparisonTable, x = comparisonTable[,6], y = comparisonTable[,9], type = "scatter",mode = "markers" , name="Competitive",
-                     marker = list(color = 'rgb(100, 150, 255)',line = list(color = 'rgb(0, 0, 255)', width = 0.5))) %>%
+                       marker = list(color = 'rgb(100, 150, 255)',line = list(color = 'rgb(0, 0, 255)', width = 0.5))) %>%
       layout(title = "Normalized Graph", titlefont = list(size = 30,color = 'rgb(47, 47, 147)'),
              yaxis = list(linecolor = toRGB("black"),color = toRGB("black"),title = FirstFirm, range = c(-0.05,1.05), titlefont = list(size = 18,color = 'rgb(0, 0, 0)'), tickfont = list(size = 12,color = 'rgb(0, 0, 0)')),
              xaxis = list(linecolor = toRGB("black"),color = toRGB("black"),title = SecondFirm, titlefont = list(size = 18,color = 'rgb(0, 0, 0)'), tickfont = list(size = 12,color = 'rgb(0, 0, 0)')),
@@ -178,15 +138,96 @@ server <- function(input, output) {
     return(graphic)
   }
   
-  FirstFirm <- "Firm1"
-  SecondFirm <- "Firm2"
-  
-
-  observeEvent(input$show,{
+  #https://shiny.rstudio.com/gallery/file-upload.html
+  output$tabla1 <- renderTable({
     
-    output$Graph2D <<- renderPlotly({
-      graphic2Dfuntion(input$firmOne, input$firmTwo, Bid_data)
+    req(input$xlsxFile)
+    
+    tryCatch({
+      df <- read.xlsx(input$xlsxFile$datapath,
+                     header = TRUE,
+                     sheetIndex = 1,
+                     stringsAsFactors=FALSE)
+    },
+    error = function(e) {
+      # return a safeError if a parsing error occurs
+      stop(safeError(e))
     })
+    
+    write.csv(df,"E:/Storage/Github/TFM/tableCSV.csv", row.names=FALSE)
+    
+    df <- data.frame(df)
+    df[is.na(df)]=""
+    
+    df[,1] <- as.integer(df[,1])
+
+    return(df)
+  })
+  
+  output$tabla2 <- renderTable({
+    
+    req(input$csvFile)
+    
+    tryCatch({
+      df <- read.csv(input$csvFile$datapath,
+                     header = TRUE,
+                     sep = input$sep)
+    },
+    error = function(e) {
+      # return a safeError if a parsing error occurs
+      stop(safeError(e))
+    })
+    
+    write.csv(df,"E:/Storage/Github/TFM/tableCSV.csv", row.names=FALSE)
+    
+    df <- data.frame(df)
+    df[is.na(df)]=""
+    
+    return(df)
+  })
+  
+  observeEvent(input$summitCSV|input$summitXLSX ,{
+    
+    req(input$xlsxFile)
+    
+    tablaCSV <- read.csv("E:/Storage/Github/TFM/tableCSV.csv", header = TRUE)
+    
+    tablaCSV[tablaCSV==""]=NA
+    
+    tableMarkers <- data.frame("Contracts" = tablaCSV$Contract)
+    tableMarkers$CV <- 0
+    tableMarkers$RD <- 0
+    for(i in 1:nrow(tablaCSV)){
+      Bids <- c()
+      for(j in seq(from=3, to=ncol(tablaCSV), by=2)){
+        if(!is.na(tablaCSV[i,j])){
+          Bids <- append(Bids,as.numeric(tablaCSV[i,j]))
+        }
+      }
+      tableMarkers$CV[i] <- sd(Bids)/mean(Bids)
+      Bids <- sort(Bids,decreasing = FALSE)
+      tableMarkers$RD[i] <- (Bids[2]-Bids[1])/sd(Bids[2:length(Bids)])
+    }
+    
+    tableMarkers$Suspicius <- ""
+    tableMarkers$Suspicius[tableMarkers$RD>1&tableMarkers$CV<=0.06]="Suspicius"
+    tableMarkers <<- tableMarkers
+    
+    write.csv(tableMarkers,"./tableMarkers.csv")
+    
+    output$markersTable <- renderDataTable({tableMarkers})
+  })
+  
+  observeEvent(input$show,{
+    output$Graph2D <<- renderPlotly({
+      graphic2Dfuntion(input$firmOne, input$firmTwo)
+    })
+  })
+  
+  
+  observeEvent(tableMarkers,{
+    output$prueba11 <<- renderText({paste0(format(x = max(tableMarkers$Contracts),digits = 4))})
+    
   })
   
 
