@@ -21,7 +21,7 @@ sidebar <- dashboardSidebar(
     menuItem("File input", tabName = "menu1", icon = icon("file-upload")),
     menuItem("DataTable", tabName = "menu2", icon = icon("table")),
     menuItem("2D graph", tabName = "menu3", icon = icon("chart-scatter")),
-    menuItem("tabalaas", tabName = "menu4", icon = icon("chart-scatter"))
+    menuItem("Final table", tabName = "menu4", icon = icon("chart-scatter"))
   )
 )
 body <- dashboardBody(
@@ -71,7 +71,8 @@ body <- dashboardBody(
     ),
     tabItem(
       tabName = "menu4",
-      textOutput("prueba11")
+      actionButton("DoIt", label = "Show the final table", icon = icon("table"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"),
+      dataTableOutput("markersTableFinal")
     )
   )
 )
@@ -136,6 +137,38 @@ server <- function(input, output) {
     
     results <- list(graphic)
     return(graphic)
+  }
+  
+  funtionSample <- function(numberOfBids, numberOfContracts, lowerPrice, higherPrice){
+    listOfSamples <- list()
+    sampleRD <- data.frame()
+    sampleCV <- data.frame()
+    for(i in c(1:numberOfContracts)){
+      listOfSamples[i] <- list(sort(sample(lowerPrice:higherPrice, numberOfBids, replace=TRUE)))
+      if(sd(listOfSamples[[i]][2:numberOfBids]) == 0){
+        sampleRD[i,1] <- 100
+        sampleCV[i,1] <- sd(listOfSamples[[i]])/mean(listOfSamples[[i]])
+      }else{
+        sampleRD[i,1] <- (listOfSamples[[i]][2]-listOfSamples[[i]][1])/sd(listOfSamples[[i]][2:numberOfBids])
+        sampleCV[i,1] <- sd(listOfSamples[[i]])/mean(listOfSamples[[i]])
+      }
+    }
+    sampleRD_frame <- data.frame("RD" = sampleRD[with(sampleRD, order(sampleRD[,1])), ])
+    sampleRD_frame$Probability <- NA
+    for(i in c(1:nrow(sampleRD_frame))){
+      sampleRD_frame[i,2] <- sum(sampleRD_frame[1:i,1])/sum(sampleRD_frame[,1])
+    }
+    sampleCV_frame <- data.frame("CV" = sampleCV[with(sampleCV, order(sampleCV[,1])), ])
+    sampleCV_frame$Probability <- NA
+    for(i in c(1:nrow(sampleCV_frame))){
+      sampleCV_frame[i,2] <- sum(sampleCV_frame[1:i,1])/sum(sampleCV_frame[,1])
+    }
+    
+    listOfSamples <<- listOfSamples
+    sampleRD_frame <<- sampleRD_frame
+    sampleCV_frame <<- sampleCV_frame
+    sampleRD <<- sort(sampleRD[,1], decreasing = TRUE)
+    sampleCV <<- sort(sampleCV[,1], decreasing = TRUE)
   }
   
   #https://shiny.rstudio.com/gallery/file-upload.html
@@ -213,7 +246,7 @@ server <- function(input, output) {
     tableMarkers$Suspicius[tableMarkers$RD>1&tableMarkers$CV<=0.06]="Suspicius"
     tableMarkers <<- tableMarkers
     
-    write.csv(tableMarkers,"./tableMarkers.csv")
+    write.csv(tableMarkers,"./tableMarkers.csv", row.names = FALSE)
     
     output$markersTable <- renderDataTable({tableMarkers})
   })
@@ -225,12 +258,45 @@ server <- function(input, output) {
   })
   
   
-  observeEvent(tableMarkers,{
-    output$prueba11 <<- renderText({paste0(format(x = max(tableMarkers$Contracts),digits = 4))})
+  observeEvent(input$DoIt,{
+    
+    tableMarkers <- read.csv("E:/Storage/Github/TFM/tableMarkers.csv", header = TRUE)
+    tableMarkers$RD_probability <- NA
+    tableMarkers$CV_probability <- NA
+    tableCSV <- read.csv("E:/Storage/Github/TFM/tableCSV.csv", header = TRUE)
+    tableBids <- data.frame(tableCSV[,1])
+    for(i in seq(3,ncol(tableCSV),2)){
+      tableBids <- cbind(tableBids, tableCSV[,i])
+    }
+    tableBids <- tableBids[,-1]
+    for(i in 1:nrow(tableBids)){
+      funtionSample(length(which(is.na(tableBids[i,])==FALSE)), 1000, min(tableBids[i,], na.rm = TRUE), max(tableBids[i,], na.rm = TRUE))
+      tableMarkers$RD_probability[i] <- sampleRD_frame$Probability[max(which(tableMarkers$RD[i]>sampleRD_frame$RD))]
+      tableMarkers$CV_probability[i] <- sampleCV_frame$Probability[max(which(tableMarkers$CV[i]>sampleCV_frame$CV))]
+    }
+    output$markersTableFinal <- renderDataTable({tableMarkers})
     
   })
   
 
 }
 shinyApp(ui, server, options = list(launch.browser=TRUE))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
