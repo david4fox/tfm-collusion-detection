@@ -11,6 +11,7 @@ library("plotly")
 
 ## Inicialization
 tableMarkers <- 0
+requirement1 <- 0
 
 ## Aplication definition
 header <- dashboardHeader(
@@ -20,8 +21,9 @@ sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("File input", tabName = "menu1", icon = icon("file-upload")),
     menuItem("DataTable", tabName = "menu2", icon = icon("table")),
-    menuItem("2D graph", tabName = "menu3", icon = icon("chart-scatter")),
-    menuItem("Final table", tabName = "menu4", icon = icon("chart-scatter"))
+    menuItem("2D graph", tabName = "menu3", icon = icon("bar-chart-o")),
+    menuItem("Final table", tabName = "menu4", icon = icon("list-alt")),
+    menuItem("Community network", tabName = "menu5", icon = icon("project-diagram"))
   )
 )
 body <- dashboardBody(
@@ -31,12 +33,12 @@ body <- dashboardBody(
       fluidRow(
         column(3, fileInput("xlsxFile", label = h3("Upload a xlsx file"), multiple = FALSE,placeholder = "No file selected",buttonLabel = "Browse...",width = "100%",accept = c(".xlsx"))),
         column(4, h6("")),
-        column(2, actionButton("summitXLSX", label = "Summit Excel", icon = icon("table"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
+        column(2, actionButton("summitXLSX", label = "Summit Excel", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
       ),
       fluidRow(
         column(3, fileInput("csvFile", label = h3("Upload a csv file"), multiple = FALSE, placeholder = "No file selected",buttonLabel = "Browse...",width = "100%",accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv"))),
         column(4, radioButtons("sep", h3("Separator"), choices = c(Comma = ",", Semicolon = ";", Tab = "\t"), selected = ";", inline = TRUE)),
-        column(2, actionButton("summitCSV", label = "Summit Csv", icon = icon("table"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
+        column(2, actionButton("summitCSV", label = "Summit Csv", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
       ),
       tableOutput("tabla1"),
       tableOutput("tabla2")
@@ -62,7 +64,7 @@ body <- dashboardBody(
           height = "350px",
           background = "light-blue")
         ),
-        column(2, actionButton("show", label = "Show Graph", icon = icon("table"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth")
+        column(2, actionButton("show", label = "Show Graph", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth")
         )
       ),
       fluidRow(
@@ -71,8 +73,13 @@ body <- dashboardBody(
     ),
     tabItem(
       tabName = "menu4",
-      actionButton("DoIt", label = "Show the final table", icon = icon("table"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"),
+      actionButton("DoIt", label = "Show the final table", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"),
       dataTableOutput("markersTableFinal")
+    ),
+    tabItem(
+      tabName = "menu5",
+      h1("Hi!"),
+      plotOutput("network")
     )
   )
 )
@@ -193,7 +200,7 @@ server <- function(input, output) {
     df[is.na(df)]=""
     
     df[,1] <- as.integer(df[,1])
-
+    requirement1 <<- "Hello"
     return(df)
   })
   
@@ -215,40 +222,41 @@ server <- function(input, output) {
     
     df <- data.frame(df)
     df[is.na(df)]=""
-    
+    requirement1 <<- "Hello"
     return(df)
   })
   
   observeEvent(input$summitCSV|input$summitXLSX ,{
     
-    req(input$xlsxFile)
-    
-    tablaCSV <- read.csv("E:/Storage/Github/TFM/tableCSV.csv", header = TRUE)
-    
-    tablaCSV[tablaCSV==""]=NA
-    
-    tableMarkers <- data.frame("Contracts" = tablaCSV$Contract)
-    tableMarkers$CV <- 0
-    tableMarkers$RD <- 0
-    for(i in 1:nrow(tablaCSV)){
-      Bids <- c()
-      for(j in seq(from=3, to=ncol(tablaCSV), by=2)){
-        if(!is.na(tablaCSV[i,j])){
-          Bids <- append(Bids,as.numeric(tablaCSV[i,j]))
+    if(requirement1=="Hello"){
+      
+      tablaCSV <- read.csv("E:/Storage/Github/TFM/tableCSV.csv", header = TRUE)
+      
+      tablaCSV[tablaCSV==""]=NA
+      
+      tableMarkers <- data.frame("Contracts" = tablaCSV$Contract)
+      tableMarkers$CV <- 0
+      tableMarkers$RD <- 0
+      for(i in 1:nrow(tablaCSV)){
+        Bids <- c()
+        for(j in seq(from=3, to=ncol(tablaCSV), by=2)){
+          if(!is.na(tablaCSV[i,j])){
+            Bids <- append(Bids,as.numeric(tablaCSV[i,j]))
+          }
         }
+        tableMarkers$CV[i] <- sd(Bids)/mean(Bids)
+        Bids <- sort(Bids,decreasing = FALSE)
+        tableMarkers$RD[i] <- (Bids[2]-Bids[1])/sd(Bids[2:length(Bids)])
       }
-      tableMarkers$CV[i] <- sd(Bids)/mean(Bids)
-      Bids <- sort(Bids,decreasing = FALSE)
-      tableMarkers$RD[i] <- (Bids[2]-Bids[1])/sd(Bids[2:length(Bids)])
+      
+      tableMarkers$Suspicius <- ""
+      tableMarkers$Suspicius[tableMarkers$RD>1&tableMarkers$CV<=0.06]="Suspicius"
+      tableMarkers <<- tableMarkers
+      
+      write.csv(tableMarkers,"./tableMarkers.csv", row.names = FALSE)
+      
+      output$markersTable <- renderDataTable({tableMarkers})
     }
-    
-    tableMarkers$Suspicius <- ""
-    tableMarkers$Suspicius[tableMarkers$RD>1&tableMarkers$CV<=0.06]="Suspicius"
-    tableMarkers <<- tableMarkers
-    
-    write.csv(tableMarkers,"./tableMarkers.csv", row.names = FALSE)
-    
-    output$markersTable <- renderDataTable({tableMarkers})
   })
   
   observeEvent(input$show,{
@@ -278,7 +286,8 @@ server <- function(input, output) {
     
   })
   
-
+  output$network <- renderPlot({plot(net)})
+  
 }
 shinyApp(ui, server, options = list(launch.browser=TRUE))
 
