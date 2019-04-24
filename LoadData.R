@@ -12,6 +12,7 @@ library("plotly")
 ## Inicialization
 tableMarkers <- 0
 requirement1 <- 0
+listOfFirms <- list("No file uploaded")
 
 ## Aplication definition
 header <- dashboardHeader(
@@ -23,7 +24,8 @@ sidebar <- dashboardSidebar(
     menuItem("DataTable", tabName = "menu2", icon = icon("table")),
     menuItem("2D graph", tabName = "menu3", icon = icon("bar-chart-o")),
     menuItem("Final table", tabName = "menu4", icon = icon("list-alt")),
-    menuItem("Community network", tabName = "menu5", icon = icon("project-diagram"))
+    menuItem("Group Bidding", tabName = "menu5", icon = icon("grip-horizontal")),
+    menuItem("Community network", tabName = "menu6", icon = icon("project-diagram"))
   )
 )
 body <- dashboardBody(
@@ -45,7 +47,13 @@ body <- dashboardBody(
     ),
     tabItem(
       tabName = "menu2",
-      h2("Data table"),
+      fluidRow(
+        column(2, h2("Data table")),
+        column(2, numericInput("RDlimit", label = "", value = 1, width = "100%", min = 0, max = 100,step = 0.01)),
+        column(2, numericInput("CVlimit", label = "", value = 0.06, width = "100%", min = 0, max = 1,step = 0.001)),
+        column(4,h6("")),
+        column(2, actionButton("ShowSuspicius", label = "Show Suspicius", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
+      ),
       dataTableOutput("markersTable")
     ),
     tabItem(
@@ -78,6 +86,22 @@ body <- dashboardBody(
     ),
     tabItem(
       tabName = "menu5",
+      box(
+        fluidRow(
+          column(10,
+                 
+                   checkboxGroupButtons("groupBidding", label = h4("Select the firms that you want to analize:"),
+                                choices = list("You have to upload a file and summit"))
+          ),
+          column(2, "Button here")
+        ),
+      width = "100%",
+      height = "350px",
+      background = "light-blue"),
+      h2("Table here")
+    ),
+    tabItem(
+      tabName = "menu6",
       h1("Hi!"),
       plotOutput("network")
     )
@@ -86,7 +110,7 @@ body <- dashboardBody(
 
 ui <- dashboardPage(header, sidebar, body)
 
-server <- function(input, output) {
+server <- function(input, output, session) {
   
   graphic2Dfuntion <- function(FirstFirm, SecondFirm){
     
@@ -178,6 +202,37 @@ server <- function(input, output) {
     sampleCV <<- sort(sampleCV[,1], decreasing = TRUE)
   }
   
+  functionFirmList <- function(){
+    tableCSV <- read.csv("E:/Storage/Github/TFM/tableCSV.csv", stringsAsFactors = FALSE)
+    for(i in seq(2,ncol(tableCSV),2)){
+      if(i==2){
+        tmp <- data.frame(tableCSV[,i][!is.na(tableCSV[,i])], stringsAsFactors = FALSE)
+        tmp1 <- data.frame(tableCSV[,i], stringsAsFactors = FALSE)
+      }else{
+        tmp <- rbind(tmp,data.frame(tableCSV[,i][!is.na(tableCSV[,i])], stringsAsFactors = FALSE))
+        tmp1 <- cbind(tmp1,data.frame(tableCSV[,i], stringsAsFactors = FALSE))
+      }
+    }
+    allFirms <<- data.frame(unique(tmp), stringsAsFactors = FALSE)
+    for(i in seq(2,ncol(tableCSV),2)){
+      if(i == 2){
+        tmp <- tableCSV[,i]
+      }else{
+        tmp <- cbind(tmp, tableCSV[,i])
+      }
+    }
+    tableFirms <- data.frame("Contract" = tableCSV$Contract)
+    for(i in 1:nrow(allFirms)){
+      tmp1 <- data.frame("Contract" = which(tmp == allFirms[i,1], arr.ind = TRUE)[,1])
+      tmp1[,2] <- which(tmp == allFirms[i,1], arr.ind = TRUE)[,1]
+      tableFirms <- merge(x = tableFirms, y = tmp1, by = "Contract",all.x = TRUE)
+    }
+    colnames(tableFirms) <-c("Contract", allFirms[,1])
+    tableFirms[,2:ncol(tableFirms)][is.na(tableFirms[,2:ncol(tableFirms)])==FALSE] = "ok"
+    tableFirms[is.na(tableFirms)==TRUE] = 0
+    tableFirms <<-tableFirms
+  }
+  
   #https://shiny.rstudio.com/gallery/file-upload.html
   output$tabla1 <- renderTable({
     
@@ -226,7 +281,7 @@ server <- function(input, output) {
     return(df)
   })
   
-  observeEvent(input$summitCSV|input$summitXLSX ,{
+  observeEvent((input$summitCSV|input$summitXLSX)&input$ShowSuspicius ,{
     
     if(requirement1=="Hello"){
       
@@ -250,7 +305,7 @@ server <- function(input, output) {
       }
       
       tableMarkers$Suspicius <- ""
-      tableMarkers$Suspicius[tableMarkers$RD>1&tableMarkers$CV<=0.06]="Suspicius"
+      tableMarkers$Suspicius[tableMarkers$RD>input$RDlimit&tableMarkers$CV<=input$CVlimit]="Suspicius"
       tableMarkers <<- tableMarkers
       
       write.csv(tableMarkers,"./tableMarkers.csv", row.names = FALSE)
@@ -286,11 +341,24 @@ server <- function(input, output) {
     
   })
   
+  observeEvent(input$summitCSV|input$summitXLSX,{
+    if(requirement1=="Hello"){
+      functionFirmList()
+      
+      x <- input$groupBidding
+      # Can also set the label and select items
+      updateCheckboxGroupButtons(session, "groupBidding",
+                         label = "Select the firms that you want to analize:",
+                         choices = allFirms[,1],
+                         selected = "hola"
+      )
+    }
+  })
+  
   output$network <- renderPlot({plot(net)})
   
 }
 shinyApp(ui, server, options = list(launch.browser=TRUE))
-
 
 
 
