@@ -20,7 +20,7 @@ listOfFirms <- list("No file uploaded")
 
 ## Aplication definition
 header <- dashboardHeader(
-  title = "Data input"
+  title = "Bid Rigging Screening"
 )
 sidebar <- dashboardSidebar(
   sidebarMenu(
@@ -85,6 +85,7 @@ body <- dashboardBody(
     ),
     tabItem(
       tabName = "menu4",
+      h3("The time it takes to process this table is high"),
       actionButton("DoIt", label = "Show the final table", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"),
       dataTableOutput("markersTableFinal")
     ),
@@ -126,7 +127,7 @@ server <- function(input, output, session) {
   
   graphic2Dfuntion <- function(FirstFirm, SecondFirm){
     
-    BidData <- read.csv("E:/Storage/Github/TFM/tableCSV.csv", header = TRUE)
+    BidData <- read.csv("./tableCSV.csv", header = TRUE)
     
     a <- which(BidData == FirstFirm, arr.ind = TRUE)
     b <- which(BidData == SecondFirm, arr.ind = TRUE)
@@ -188,6 +189,9 @@ server <- function(input, output, session) {
     sampleCV <- data.frame()
     for(i in c(1:numberOfContracts)){
       listOfSamples[i] <- list(sort(sample(lowerPrice:higherPrice, numberOfBids, replace=TRUE)))
+      if(listOfSamples[[i]][1] > lowerPrice){
+        listOfSamples[[i]][1] <- lowerPrice
+      }
       if(sd(listOfSamples[[i]][2:numberOfBids]) == 0){
         sampleRD[i,1] <- 100
         sampleCV[i,1] <- sd(listOfSamples[[i]])/mean(listOfSamples[[i]])
@@ -215,7 +219,7 @@ server <- function(input, output, session) {
   }
   
   functionFirmList <- function(){
-    tableCSV <- read.csv("E:/Storage/Github/TFM/tableCSV.csv", stringsAsFactors = FALSE)
+    tableCSV <- read.csv("./tableCSV.csv", stringsAsFactors = FALSE)
     for(i in seq(2,ncol(tableCSV),2)){
       if(i==2){
         tmp <- data.frame(tableCSV[,i][!is.na(tableCSV[,i])], stringsAsFactors = FALSE)
@@ -283,7 +287,7 @@ server <- function(input, output, session) {
       stop(safeError(e))
     })
     
-    write.csv(df,"E:/Storage/Github/TFM/tableCSV.csv", row.names=FALSE)
+    write.csv(df,"./tableCSV.csv", row.names=FALSE)
     
     df <- data.frame(df)
     df[is.na(df)]=""
@@ -307,7 +311,7 @@ server <- function(input, output, session) {
       stop(safeError(e))
     })
     
-    write.csv(df,"E:/Storage/Github/TFM/tableCSV.csv", row.names=FALSE)
+    write.csv(df,"./tableCSV.csv", row.names=FALSE)
     
     df <- data.frame(df)
     df[is.na(df)]=""
@@ -319,7 +323,7 @@ server <- function(input, output, session) {
     
     if(requirement1=="Hello"){
       
-      tablaCSV <- read.csv("E:/Storage/Github/TFM/tableCSV.csv", header = TRUE)
+      tablaCSV <- read.csv("./tableCSV.csv", header = TRUE)
       
       tablaCSV[tablaCSV==""]=NA
       
@@ -357,10 +361,10 @@ server <- function(input, output, session) {
   
   observeEvent(input$DoIt,{
     
-    tableMarkers <- read.csv("E:/Storage/Github/TFM/tableMarkers.csv", header = TRUE)
-    tableMarkers$RD_probability <- NA
+    tableMarkers <- read.csv("./tableMarkers.csv", header = TRUE)
     tableMarkers$CV_probability <- NA
-    tableCSV <- read.csv("E:/Storage/Github/TFM/tableCSV.csv", header = TRUE)
+    tableMarkers$RD_probability <- NA
+    tableCSV <- read.csv("./tableCSV.csv", header = TRUE)
     tableBids <- data.frame(tableCSV[,1])
     for(i in seq(3,ncol(tableCSV),2)){
       tableBids <- cbind(tableBids, tableCSV[,i])
@@ -399,8 +403,8 @@ server <- function(input, output, session) {
   
   
   # Esta red no es la red de los datos de las empresas
-  nodes <- read.csv("E:/Storage/Github/TFM/Dataset1-Media-Example-NODES.csv", header=T, as.is=T)
-  links <- read.csv("E:/Storage/Github/TFM/Dataset1-Media-Example-EDGES.csv", header=T, as.is=T)
+  nodes <- read.csv("./Dataset1-Media-Example-NODES.csv", header=T, as.is=T)
+  links <- read.csv("./Dataset1-Media-Example-EDGES.csv", header=T, as.is=T)
   links <- aggregate(links[,3], links[,-3], sum)
   links <- links[order(links$from, links$to),]
   colnames(links)[4] <- "weight"
