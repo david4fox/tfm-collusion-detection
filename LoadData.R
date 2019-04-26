@@ -6,6 +6,10 @@ library("shinyWidgets")
 library("shinydashboard")
 library("xlsx")
 library("plotly")
+library("igraph")
+library("network")
+library("sna")
+library("ndtv")
 #library("dplyr")
 
 
@@ -86,23 +90,31 @@ body <- dashboardBody(
     ),
     tabItem(
       tabName = "menu5",
-      box(
-        fluidRow(
-          column(10,
-                 
-                   checkboxGroupButtons("groupBidding", label = h4("Select the firms that you want to analize:"),
-                                choices = list("You have to upload a file and summit"))
-          ),
-          column(2, "Button here")
-        ),
-      width = "100%",
-      height = "350px",
-      background = "light-blue"),
-      h2("Table here")
+      fluidRow(
+        column(6,
+                 fluidRow(
+                   column(8,
+                          box(
+                          checkboxGroupButtons("groupBidding", label = h4("Select the firms that you want to analize:"),individual = TRUE, checkIcon = icon("thumbs-up"),
+                                               choices = list("You have to upload a file and summit"), direction = "vertical", status = "warning"),
+                          actionButton("ShowContracts", label = "Show contracts", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"),
+                          width = "100%",
+                          height = "100%",
+                          background = "aqua")
+                   )
+                 )
+               ),
+        column(6,
+               h3("The contracts in which the selected firms have bid together are the following :"),
+               br(),
+               tableOutput("HolaQueTal")
+               )
+      )
+      
     ),
     tabItem(
       tabName = "menu6",
-      h1("Hi!"),
+      h1("Red de prueba"),
       plotOutput("network")
     )
   )
@@ -233,7 +245,29 @@ server <- function(input, output, session) {
     tableFirms <<-tableFirms
   }
   
-  #https://shiny.rstudio.com/gallery/file-upload.html
+  functionCommunContracts <- function(selectedFirmsName,allFirms,tableFirms){
+    selectedFirmsPosition <- c()
+    for(i in selectedFirmsName){
+      selectedFirmsPosition <- cbind(selectedFirmsPosition, which(allFirms == i) + 1)
+    }
+    
+    
+    
+    tmp <- data.frame() 
+    for(i in selectedFirmsPosition){
+      
+      tmp <- rbind(tmp, data.frame(which(tableFirms[,i] == "ok")))
+      
+    }
+    colnames(tmp) <- c("Firms")
+    tmp$frec <- 1
+    tmp1 <- tmp
+    tmp2 <- group_by(tmp1, by = Firms) %>%
+      summarise(frec = sum(frec))
+    
+    communContracts <<- tmp2[which(tmp2$frec == length(selectedFirmsPosition)),1]
+  }
+  
   output$tabla1 <- renderTable({
     
     req(input$xlsxFile)
@@ -350,11 +384,28 @@ server <- function(input, output, session) {
       updateCheckboxGroupButtons(session, "groupBidding",
                          label = "Select the firms that you want to analize:",
                          choices = allFirms[,1],
-                         selected = "hola"
+                         selected = "No Firm selected"
       )
     }
   })
   
+  observeEvent(input$ShowContracts,{
+    
+    selectedFirmsName<-input$groupBidding
+    functionCommunContracts(selectedFirmsName,allFirms,tableFirms)
+    output$HolaQueTal <- renderTable(communContracts, colnames = FALSE)
+    
+  })
+  
+  
+  # Esta red no es la red de los datos de las empresas
+  nodes <- read.csv("E:/Storage/Github/TFM/Dataset1-Media-Example-NODES.csv", header=T, as.is=T)
+  links <- read.csv("E:/Storage/Github/TFM/Dataset1-Media-Example-EDGES.csv", header=T, as.is=T)
+  links <- aggregate(links[,3], links[,-3], sum)
+  links <- links[order(links$from, links$to),]
+  colnames(links)[4] <- "weight"
+  rownames(links) <- NULL
+  net <- graph_from_data_frame(d=links, vertices=nodes, directed=T)
   output$network <- renderPlot({plot(net)})
   
 }
