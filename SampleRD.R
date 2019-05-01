@@ -121,14 +121,16 @@ server <- function(input, output) {
       sampleCV[i,1] <- sd(listOfSamples[[i]])/mean(listOfSamples[[i]])
     }
     sampleRD_frame <- data.frame("RD" = sampleRD[with(sampleRD, order(sampleRD[,1])), ])
+    sampleRD_frame$Frecuency <- 1
     sampleRD_frame$Probability <- NA
     for(i in c(1:nrow(sampleRD_frame))){
-      sampleRD_frame[i,2] <- sum(sampleRD_frame[1:i,1])/sum(sampleRD_frame[,1])
+      sampleRD_frame$Probability[i] <- sum(sampleRD_frame$Frecuency[1:i])/numberOfContracts
     }
     sampleCV_frame <- data.frame("CV" = sampleCV[with(sampleCV, order(sampleCV[,1])), ])
+    sampleCV_frame$Frecuency <- 1
     sampleCV_frame$Probability <- NA
     for(i in c(1:nrow(sampleCV_frame))){
-      sampleCV_frame[i,2] <- sum(sampleCV_frame[1:i,1])/sum(sampleCV_frame[,1])
+      sampleCV_frame$Probability[i] <- sum(sampleCV_frame$Frecuency[1:i])/numberOfContracts
     }
     
     listOfSamples <<- listOfSamples

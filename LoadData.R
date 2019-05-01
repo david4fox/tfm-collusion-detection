@@ -10,7 +10,7 @@ library("igraph")
 library("network")
 library("sna")
 library("ndtv")
-#library("dplyr")
+library("dplyr")
 
 
 ## Inicialization
@@ -56,7 +56,7 @@ body <- dashboardBody(
         column(2, numericInput("RDlimit", label = "", value = 1, width = "100%", min = 0, max = 100,step = 0.01)),
         column(2, numericInput("CVlimit", label = "", value = 0.06, width = "100%", min = 0, max = 1,step = 0.001)),
         column(4,h6("")),
-        column(2, actionButton("ShowSuspicius", label = "Show Suspicius", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
+        column(2, actionButton("ShowSuspicious", label = "Show Suspicious", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
       ),
       dataTableOutput("markersTable")
     ),
@@ -192,6 +192,9 @@ server <- function(input, output, session) {
       if(listOfSamples[[i]][1] > lowerPrice){
         listOfSamples[[i]][1] <- lowerPrice
       }
+      if(listOfSamples[[i]][length(listOfSamples[[i]])] < higherPrice){
+        listOfSamples[[i]][length(listOfSamples[[i]])] <- higherPrice
+      }
       if(sd(listOfSamples[[i]][2:numberOfBids]) == 0){
         sampleRD[i,1] <- 100
         sampleCV[i,1] <- sd(listOfSamples[[i]])/mean(listOfSamples[[i]])
@@ -201,14 +204,16 @@ server <- function(input, output, session) {
       }
     }
     sampleRD_frame <- data.frame("RD" = sampleRD[with(sampleRD, order(sampleRD[,1])), ])
+    sampleRD_frame$Frecuency <- 1
     sampleRD_frame$Probability <- NA
     for(i in c(1:nrow(sampleRD_frame))){
-      sampleRD_frame[i,2] <- sum(sampleRD_frame[1:i,1])/sum(sampleRD_frame[,1])
+      sampleRD_frame$Probability[i] <- sum(sampleRD_frame$Frecuency[1:i])/numberOfContracts
     }
     sampleCV_frame <- data.frame("CV" = sampleCV[with(sampleCV, order(sampleCV[,1])), ])
+    sampleCV_frame$Frecuency <- 1
     sampleCV_frame$Probability <- NA
     for(i in c(1:nrow(sampleCV_frame))){
-      sampleCV_frame[i,2] <- sum(sampleCV_frame[1:i,1])/sum(sampleCV_frame[,1])
+      sampleCV_frame$Probability[i] <- sum(sampleCV_frame$Frecuency[1:i])/numberOfContracts
     }
     
     listOfSamples <<- listOfSamples
@@ -319,7 +324,7 @@ server <- function(input, output, session) {
     return(df)
   })
   
-  observeEvent((input$summitCSV|input$summitXLSX)&input$ShowSuspicius ,{
+  observeEvent((input$summitCSV|input$summitXLSX)&input$ShowSuspicious ,{
     
     if(requirement1=="Hello"){
       
@@ -342,8 +347,8 @@ server <- function(input, output, session) {
         tableMarkers$RD[i] <- (Bids[2]-Bids[1])/sd(Bids[2:length(Bids)])
       }
       
-      tableMarkers$Suspicius <- ""
-      tableMarkers$Suspicius[tableMarkers$RD>input$RDlimit&tableMarkers$CV<=input$CVlimit]="Suspicius"
+      tableMarkers$Suspicious <- ""
+      tableMarkers$Suspicious[tableMarkers$RD>input$RDlimit&tableMarkers$CV<=input$CVlimit]="Suspicious"
       tableMarkers <<- tableMarkers
       
       write.csv(tableMarkers,"./tableMarkers.csv", row.names = FALSE)
@@ -364,6 +369,7 @@ server <- function(input, output, session) {
     tableMarkers <- read.csv("./tableMarkers.csv", header = TRUE)
     tableMarkers$CV_probability <- NA
     tableMarkers$RD_probability <- NA
+    tableMarkers$statisticalMarker <- NA
     tableCSV <- read.csv("./tableCSV.csv", header = TRUE)
     tableBids <- data.frame(tableCSV[,1])
     for(i in seq(3,ncol(tableCSV),2)){
@@ -372,8 +378,11 @@ server <- function(input, output, session) {
     tableBids <- tableBids[,-1]
     for(i in 1:nrow(tableBids)){
       funtionSample(length(which(is.na(tableBids[i,])==FALSE)), 1000, min(tableBids[i,], na.rm = TRUE), max(tableBids[i,], na.rm = TRUE))
-      tableMarkers$RD_probability[i] <- sampleRD_frame$Probability[max(which(tableMarkers$RD[i]>sampleRD_frame$RD))]
+      tableMarkers$RD_probability[i] <- 1 - sampleRD_frame$Probability[max(which(tableMarkers$RD[i]>sampleRD_frame$RD))]
       tableMarkers$CV_probability[i] <- sampleCV_frame$Probability[max(which(tableMarkers$CV[i]>sampleCV_frame$CV))]
+      if(tableMarkers$RD_probability[i] <= 0.05 & tableMarkers$CV_probability[i] <= 0.05){
+        tableMarkers$statisticalMarker[i] <- "Suspicious"
+      }
     }
     output$markersTableFinal <- renderDataTable({tableMarkers})
     
