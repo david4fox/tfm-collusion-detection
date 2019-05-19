@@ -16,6 +16,8 @@ library("dplyr")
 ## Inicialization
 tableMarkers <- 0
 requirement1 <- 0
+requirement2 <- 0
+FinalTable <- 0
 listOfFirms <- list("No file uploaded")
 
 ## Aplication definition
@@ -27,9 +29,11 @@ sidebar <- dashboardSidebar(
     menuItem("File input", tabName = "menu1", icon = icon("file-upload")),
     menuItem("DataTable", tabName = "menu2", icon = icon("table")),
     menuItem("2D graph", tabName = "menu3", icon = icon("bar-chart-o")),
-    menuItem("Final table", tabName = "menu4", icon = icon("list-alt")),
-    menuItem("Group Bidding", tabName = "menu5", icon = icon("grip-horizontal")),
-    menuItem("Community network", tabName = "menu6", icon = icon("project-diagram"))
+    menuItem("Variance Screning", tabName = "menu4", icon = icon("angle-double-right")),
+    menuItem("Final table", tabName = "menu5", icon = icon("list-alt")),
+    menuItem("Group Bidding", tabName = "menu6", icon = icon("grip-horizontal")),
+    menuItem("Community network", tabName = "menu7", icon = icon("project-diagram")),
+    menuItem("Final table", tabName = "menu8", icon = icon("bullseye"))
   )
 )
 body <- dashboardBody(
@@ -39,7 +43,8 @@ body <- dashboardBody(
       fluidRow(
         column(3, fileInput("xlsxFile", label = h3("Upload a xlsx file"), multiple = FALSE,placeholder = "No file selected",buttonLabel = "Browse...",width = "100%",accept = c(".xlsx"))),
         column(4, h6("")),
-        column(2, actionButton("summitXLSX", label = "Summit Excel", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
+        column(2, actionButton("summitXLSX", label = "Summit Excel", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth")),
+        column(3, numericInput("numberColumn", label = h3("Introduce the number of aditional columns with information relative to a contract"), value = 2, width = "100%", min = 1, max = 100,step = 1))
       ),
       fluidRow(
         column(3, fileInput("csvFile", label = h3("Upload a csv file"), multiple = FALSE, placeholder = "No file selected",buttonLabel = "Browse...",width = "100%",accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv"))),
@@ -85,12 +90,17 @@ body <- dashboardBody(
     ),
     tabItem(
       tabName = "menu4",
+      h3("Coeficient of Variation over time"),
+      plotlyOutput("GraphCV")
+    ),
+    tabItem(
+      tabName = "menu5",
       h3("The time it takes to process this table is high"),
       actionButton("DoIt", label = "Show the final table", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"),
       dataTableOutput("markersTableFinal")
     ),
     tabItem(
-      tabName = "menu5",
+      tabName = "menu6",
       fluidRow(
         column(6,
                  fluidRow(
@@ -114,9 +124,14 @@ body <- dashboardBody(
       
     ),
     tabItem(
-      tabName = "menu6",
+      tabName = "menu7",
       h1("Red de prueba"),
       plotOutput("network")
+    ),
+    tabItem(
+      tabName = "menu8",
+      h1("Final table"),
+      dataTableOutput("tablaFinal")
     )
   )
 )
@@ -128,6 +143,7 @@ server <- function(input, output, session) {
   graphic2Dfuntion <- function(FirstFirm, SecondFirm){
     
     BidData <- read.csv("./tableCSV.csv", header = TRUE)
+    BidData <- BidData[,seq(-1*(input$numberColumn),-2,1)]
     
     a <- which(BidData == FirstFirm, arr.ind = TRUE)
     b <- which(BidData == SecondFirm, arr.ind = TRUE)
@@ -225,8 +241,8 @@ server <- function(input, output, session) {
   
   functionFirmList <- function(){
     tableCSV <- read.csv("./tableCSV.csv", stringsAsFactors = FALSE)
-    for(i in seq(2,ncol(tableCSV),2)){
-      if(i==2){
+    for(i in seq(1+input$numberColumn,ncol(tableCSV),2)){
+      if(i == 1+input$numberColumn){
         tmp <- data.frame(tableCSV[,i][!is.na(tableCSV[,i])], stringsAsFactors = FALSE)
         tmp1 <- data.frame(tableCSV[,i], stringsAsFactors = FALSE)
       }else{
@@ -234,9 +250,11 @@ server <- function(input, output, session) {
         tmp1 <- cbind(tmp1,data.frame(tableCSV[,i], stringsAsFactors = FALSE))
       }
     }
-    allFirms <<- data.frame(unique(tmp), stringsAsFactors = FALSE)
-    for(i in seq(2,ncol(tableCSV),2)){
-      if(i == 2){
+    allFirms <- data.frame(unique(tmp), stringsAsFactors = FALSE)
+    allFirms <- data.frame(allFirms[which(allFirms[,1]!=""),], stringsAsFactors = FALSE)
+    colnames(allFirms) <- "Firms"
+    for(i in seq(1+input$numberColumn,ncol(tableCSV),2)){
+      if(i == 1+input$numberColumn){
         tmp <- tableCSV[,i]
       }else{
         tmp <- cbind(tmp, tableCSV[,i])
@@ -251,7 +269,11 @@ server <- function(input, output, session) {
     colnames(tableFirms) <-c("Contract", allFirms[,1])
     tableFirms[,2:ncol(tableFirms)][is.na(tableFirms[,2:ncol(tableFirms)])==FALSE] = "ok"
     tableFirms[is.na(tableFirms)==TRUE] = 0
-    tableFirms <<-tableFirms
+    FinalTable <- data.frame("Firms" = allFirms[1], stringsAsFactors = FALSE)
+    FinalTable <<- FinalTable
+    tableFirms <<- tableFirms
+    allFirms <<- allFirms
+    requirement2 <<- "Hello"
   }
   
   functionCommunContracts <- function(selectedFirmsName,allFirms,tableFirms){
@@ -335,23 +357,38 @@ server <- function(input, output, session) {
       tableMarkers <- data.frame("Contracts" = tablaCSV$Contract)
       tableMarkers$CV <- 0
       tableMarkers$RD <- 0
+      tableMarkers$Suspicious <- ""
+      tableMarkers$Winner <- 0
       for(i in 1:nrow(tablaCSV)){
         Bids <- c()
-        for(j in seq(from=3, to=ncol(tablaCSV), by=2)){
+        for(j in seq(from=input$numberColumn+2, to=ncol(tablaCSV), by=2)){
           if(!is.na(tablaCSV[i,j])){
             Bids <- append(Bids,as.numeric(tablaCSV[i,j]))
           }
         }
         tableMarkers$CV[i] <- sd(Bids)/mean(Bids)
+        tableMarkers$Winner[i] <- as.character(tablaCSV[i,which(min(Bids)==Bids)[1]*2-1+input$numberColumn])
         Bids <- sort(Bids,decreasing = FALSE)
         tableMarkers$RD[i] <- (Bids[2]-Bids[1])/sd(Bids[2:length(Bids)])
       }
       
-      tableMarkers$Suspicious <- ""
       tableMarkers$Suspicious[tableMarkers$RD>input$RDlimit&tableMarkers$CV<=input$CVlimit]="Suspicious"
       tableMarkers <<- tableMarkers
       
       write.csv(tableMarkers,"./tableMarkers.csv", row.names = FALSE)
+      
+      tmp <- data.frame("CV"=tableMarkers$CV)
+      tmp$Date <- tablaCSV$Date
+      
+      CVgraph <<- plot_ly(data = tmp, x =~Date, y =~CV, type = "scatter",mode = "markers" , name="Competitive", marker = list(color = 'rgb(100, 150, 255)',line = list(color = 'rgb(0, 0, 255)', width = 0.5))) %>%
+        layout(title = "Coeficient of Variation over time", titlefont = list(size = 20,color = 'rgb(47, 47, 147)'),
+               yaxis = list(linecolor = toRGB("black"),color = toRGB("black"),title = "CV", titlefont = list(size = 18,color = 'rgb(0, 0, 0)'), tickfont = list(size = 12,color = 'rgb(0, 0, 0)')),
+               xaxis = list(linecolor = toRGB("black"),color = toRGB("black"),title = "Date", titlefont = list(size = 18,color = 'rgb(0, 0, 0)'), tickfont = list(size = 12,color = 'rgb(0, 0, 0)')),
+               margin = list(t = 75, b = 50,r = 10,l = 80), plot_bgcolor = 'rgb(255, 255, 255)', paper_bgcolor  = 'rgb(186, 186, 186)', barmode = 'group', bargap = 10)
+      
+      output$GraphCV <<- renderPlotly({
+        CVgraph
+      })
       
       output$markersTable <- renderDataTable({tableMarkers})
     }
@@ -372,7 +409,7 @@ server <- function(input, output, session) {
     tableMarkers$statisticalMarker <- NA
     tableCSV <- read.csv("./tableCSV.csv", header = TRUE)
     tableBids <- data.frame(tableCSV[,1])
-    for(i in seq(3,ncol(tableCSV),2)){
+    for(i in seq(2+input$numberColumn,ncol(tableCSV),2)){
       tableBids <- cbind(tableBids, tableCSV[,i])
     }
     tableBids <- tableBids[,-1]
@@ -421,9 +458,18 @@ server <- function(input, output, session) {
   net <- graph_from_data_frame(d=links, vertices=nodes, directed=T)
   output$network <- renderPlot({plot(net)})
   
+  observeEvent(input$DoIt,{
+    if(requirement2=="Hello"){
+      FinalTable$Contracts <- 0
+      for(i in c(allFirms[[1]])){
+        FinalTable$Contracts[which(FinalTable[1]==i)] <- length(which(tableMarkers[5]==i))
+      }
+      output$tablaFinal <- renderDataTable({FinalTable})
+    }
+  })
+  
 }
 shinyApp(ui, server, options = list(launch.browser=TRUE))
-
 
 
 
