@@ -1,16 +1,15 @@
 ## Libraries
-library("shiny")
-library("shinyjs")
-library("shinythemes")
-library("shinyWidgets")
-library("shinydashboard")
-library("xlsx")
-library("plotly")
-library("igraph")
-library("network")
-library("sna")
-library("ndtv")
-library("dplyr")
+ipak <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg))
+    install.packages(new.pkg, dependencies = TRUE, repos='http://cran.us.r-project.org')
+  sapply(pkg, require, character.only = TRUE)
+}
+
+packages <- c("shiny","shinyjs","shinythemes","shinyWidgets","shinydashboard","xlsx","plotly","igraph","network","sna","ndtv","dplyr","visNetwork")
+
+ipak(packages)
+
 
 
 ## Inicialization
@@ -125,13 +124,21 @@ body <- dashboardBody(
     ),
     tabItem(
       tabName = "menu7",
-      h1("Red de prueba"),
-      plotOutput("network")
+      fluidRow(
+        column(12,
+          h1("Firm Network"),
+          visNetworkOutput("network")
+        )
+      )
     ),
     tabItem(
       tabName = "menu8",
-      h1("Final table"),
-      dataTableOutput("tablaFinal")
+      fluidRow(
+        column(12,
+          h1("Final table"),
+          dataTableOutput("tablaFinal")
+        )
+      )
     )
   )
 )
@@ -299,6 +306,46 @@ server <- function(input, output, session) {
     communContracts <<- tmp2[which(tmp2$frec == length(selectedFirmsPosition)),1]
   }
   
+  networkFunction <- function(allFirms,tableFirms){
+    
+    tableCSV <- read.csv("./tableCSV.csv", stringsAsFactors = FALSE)
+    
+    nodes <- data.frame(id = 1:nrow(allFirms),
+                        label = allFirms$Firms,
+                        group = c("Group A"),
+                        value = 0.5,
+                        shape = c("circle"),
+                        title = paste0("<p><b>", allFirms$Firms,"</b><br>Node !</p>"),
+                        shadow = FALSE)
+    
+    links <- data.frame("from" = 0, "to" = 0, "width" = 0, stringsAsFactors = FALSE)
+    for(firmFrom in 2:nrow(nodes)){
+      for(firmTo in (firmFrom+1):ncol(tableFirms)){
+        print(paste0(firmFrom-1,"-",firmTo-1))
+        if(length(which(tableFirms[,firmFrom] == "ok" & tableFirms[,firmTo] == "ok"))>0){
+          links <- rbind(links, c(firmFrom-1, firmTo-1, length(which(tableFirms[,firmFrom] == "ok" & tableFirms[,firmTo] == "ok"))))
+        }
+      }
+    }
+    links <- links[-1,]
+    
+    edges <- data.frame(from = links$from,
+                        to = links$to,length = 200,
+                        width = links$width/3,
+                        dashes = FALSE,
+                        smooth = FALSE,
+                        shadow = FALSE) 
+    
+    firmNetwork <- visNetwork(nodes, edges, height = "500px", width = "100%") %>% 
+      visInteraction(dragNodes = TRUE, 
+                     dragView = FALSE, 
+                     zoomView = FALSE) %>%
+      visLayout(randomSeed = 42) %>%
+      visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) %>%
+      visConfigure(enabled = TRUE)
+    return(firmNetwork)
+  }
+  
   output$tabla1 <- renderTable({
     
     req(input$xlsxFile)
@@ -400,7 +447,6 @@ server <- function(input, output, session) {
     })
   })
   
-  
   observeEvent(input$DoIt,{
     
     tableMarkers <- read.csv("./tableMarkers.csv", header = TRUE)
@@ -436,6 +482,9 @@ server <- function(input, output, session) {
                          choices = allFirms[,1],
                          selected = "No Firm selected"
       )
+      output$network <- renderVisNetwork({
+        networkFunction(allFirms,tableFirms)
+      })
     }
   })
   
@@ -447,17 +496,6 @@ server <- function(input, output, session) {
     
   })
   
-  
-  # Esta red no es la red de los datos de las empresas
-  nodes <- read.csv("./Dataset1-Media-Example-NODES.csv", header=T, as.is=T)
-  links <- read.csv("./Dataset1-Media-Example-EDGES.csv", header=T, as.is=T)
-  links <- aggregate(links[,3], links[,-3], sum)
-  links <- links[order(links$from, links$to),]
-  colnames(links)[4] <- "weight"
-  rownames(links) <- NULL
-  net <- graph_from_data_frame(d=links, vertices=nodes, directed=T)
-  output$network <- renderPlot({plot(net)})
-  
   observeEvent(input$DoIt,{
     if(requirement2=="Hello"){
       FinalTable$Contracts <- 0
@@ -467,7 +505,7 @@ server <- function(input, output, session) {
       output$tablaFinal <- renderDataTable({FinalTable})
     }
   })
-  
+
 }
 shinyApp(ui, server, options = list(launch.browser=TRUE))
 
