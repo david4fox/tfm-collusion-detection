@@ -1,16 +1,28 @@
-## Libraries
-ipak <- function(pkg){
-  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
-  if (length(new.pkg))
-    install.packages(new.pkg, dependencies = TRUE, repos='http://cran.us.r-project.org')
-  sapply(pkg, require, character.only = TRUE)
-}
-
-packages <- c("shiny","shinyjs","shinythemes","shinyWidgets","shinydashboard","xlsx","plotly","igraph","network","sna","ndtv","dplyr","visNetwork")
-
-ipak(packages)
-
-
+# ## Libraries
+# ipak <- function(pkg){
+#   new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+#   if (length(new.pkg))
+#     install.packages(new.pkg, dependencies = TRUE, repos='http://cran.us.r-project.org')
+#   sapply(pkg, require, character.only = TRUE)
+# }
+# 
+# packages <- c("shiny","shinyjs","shinythemes","shinyWidgets","shinydashboard","xlsx","plotly","igraph","network","sna","ndtv","dplyr","visNetwork","rsconnect")
+# 
+# ipak(packages)
+library("shiny")
+library("shinyjs")
+library("shinythemes")
+library("shinyWidgets")
+library("shinydashboard")
+library("igraph")
+library("network")
+library("sna")
+library("ndtv")
+library("xlsx")
+library("plotly")
+library("dplyr")
+library("visNetwork")
+library("rsconnect")
 
 ## Inicialization
 tableMarkers <- 0
@@ -18,6 +30,25 @@ requirement1 <- 0
 requirement2 <- 0
 FinalTable <- 0
 listOfFirms <- list("No file uploaded")
+tableCSV1 <- data.frame(Contract=c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26),
+                        Date=c("2018-01-07","2018-01-14","2018-01-21","2018-01-28","2018-02-04","2018-02-11","2018-02-18","2018-02-25","2018-03-04","2018-03-11","2018-03-18","2018-03-25","2018-04-01","2018-04-08","2018-04-15","2018-04-22","2018-04-29","2018-05-06","2018-05-13","2018-05-20","2018-05-27","2018-06-03","2018-06-10","2018-06-17","2018-06-24","2018-07-01"),
+                        Firm=c("Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6"),
+                        Bid=c(19000,24000,26200,29000,25770,18200,29400,27070,25680,19200,25450,26590,26000,29920,18750,25350,27800,19100,25670,26050,17800,24200,28680,24680,18800,28380),
+                        Firm=c("Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7"),
+                        Bid=c(24720,19200,25660,26340,18000,24330,27850,17800,24140,27920,19000,27950,24480,27120,29110,28450,29260,27200,18500,29300,25090,19000,24880,29630,29350,19000),
+                        Firm=c("Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8"),
+                        Bid=c(6940,24640,18900,26720,26540,29710,18500,28040,27980,29680,28560,19000,28660,19500,24610,27610,24160,27250,28880,28800,25930,24870,19300,20000,24120,27610),
+                        Firm=c("Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9"),
+                        Bid=c(26520,26210,25340,19200,24480,29060,25370,29590,18500,25280,29420,25350,18500,28930,25760,18800,18600,29850,25450,18900,28540,26250,24430,28730,25170,29370),
+                        Firm=c(NA,"Empresa 5",NA,NA,NA,NA,NA,NA,"Empresa 10",NA,NA,NA,NA,NA,NA,"Empresa 5",NA,NA,NA,NA,NA,"Empresa 10",NA,NA,"Empresa 6","Empresa 5"),
+                        Bid=c(NA,24000,NA,NA,NA,NA,NA,NA,26000,NA,NA,NA,NA,NA,NA,23750,NA,NA,NA,NA,NA,25000,NA,NA,24130,23500),
+                        Firm=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Empresa 7","Empresa 10"),
+                        Bid=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,19000,24000),
+                        Firm=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Empresa 8",NA),
+                        Bid=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,26980,NA),
+                        Firm=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Empresa 9",NA),
+                        Bid=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,29210,NA),
+                        stringsAsFactors = FALSE)
 
 ## Aplication definition
 header <- dashboardHeader(
@@ -146,7 +177,7 @@ body <- dashboardBody(
 ui <- dashboardPage(header, sidebar, body)
 
 server <- function(input, output, session) {
-  
+
   graphic2Dfuntion <- function(FirstFirm, SecondFirm){
     
     BidData <- read.csv("./tableCSV.csv", header = TRUE)
@@ -246,10 +277,10 @@ server <- function(input, output, session) {
     sampleCV <<- sort(sampleCV[,1], decreasing = TRUE)
   }
   
-  functionFirmList <- function(){
+  functionFirmList <- function(numberColumn){
     tableCSV <- read.csv("./tableCSV.csv", stringsAsFactors = FALSE)
-    for(i in seq(1+input$numberColumn,ncol(tableCSV),2)){
-      if(i == 1+input$numberColumn){
+    for(i in seq(1+numberColumn,ncol(tableCSV),2)){
+      if(i == 1+numberColumn){
         tmp <- data.frame(tableCSV[,i][!is.na(tableCSV[,i])], stringsAsFactors = FALSE)
         tmp1 <- data.frame(tableCSV[,i], stringsAsFactors = FALSE)
       }else{
@@ -260,8 +291,8 @@ server <- function(input, output, session) {
     allFirms <- data.frame(unique(tmp), stringsAsFactors = FALSE)
     allFirms <- data.frame(allFirms[which(allFirms[,1]!=""),], stringsAsFactors = FALSE)
     colnames(allFirms) <- "Firms"
-    for(i in seq(1+input$numberColumn,ncol(tableCSV),2)){
-      if(i == 1+input$numberColumn){
+    for(i in seq(1+numberColumn,ncol(tableCSV),2)){
+      if(i == 1+numberColumn){
         tmp <- tableCSV[,i]
       }else{
         tmp <- cbind(tmp, tableCSV[,i])
@@ -473,7 +504,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$summitCSV|input$summitXLSX,{
     if(requirement1=="Hello"){
-      functionFirmList()
+      functionFirmList(input$numberColumn)
       
       x <- input$groupBidding
       # Can also set the label and select items
@@ -508,12 +539,6 @@ server <- function(input, output, session) {
 
 }
 shinyApp(ui, server, options = list(launch.browser=TRUE))
-
-
-
-
-
-
 
 
 
