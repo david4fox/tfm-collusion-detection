@@ -25,30 +25,32 @@ library("visNetwork")
 library("rsconnect")
 
 ## Inicialization
+defaultValues <- 1
 tableMarkers <- 0
 requirement1 <- 0
 requirement2 <- 0
 FinalTable <- 0
+columnNumber <- 2
 listOfFirms <- list("No file uploaded")
-tableCSV1 <- data.frame(Contract=c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26),
-                        Date=c("2018-01-07","2018-01-14","2018-01-21","2018-01-28","2018-02-04","2018-02-11","2018-02-18","2018-02-25","2018-03-04","2018-03-11","2018-03-18","2018-03-25","2018-04-01","2018-04-08","2018-04-15","2018-04-22","2018-04-29","2018-05-06","2018-05-13","2018-05-20","2018-05-27","2018-06-03","2018-06-10","2018-06-17","2018-06-24","2018-07-01"),
-                        Firm=c("Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6"),
-                        Bid=c(19000,24000,26200,29000,25770,18200,29400,27070,25680,19200,25450,26590,26000,29920,18750,25350,27800,19100,25670,26050,17800,24200,28680,24680,18800,28380),
-                        Firm=c("Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7"),
-                        Bid=c(24720,19200,25660,26340,18000,24330,27850,17800,24140,27920,19000,27950,24480,27120,29110,28450,29260,27200,18500,29300,25090,19000,24880,29630,29350,19000),
-                        Firm=c("Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8"),
-                        Bid=c(6940,24640,18900,26720,26540,29710,18500,28040,27980,29680,28560,19000,28660,19500,24610,27610,24160,27250,28880,28800,25930,24870,19300,20000,24120,27610),
-                        Firm=c("Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9"),
-                        Bid=c(26520,26210,25340,19200,24480,29060,25370,29590,18500,25280,29420,25350,18500,28930,25760,18800,18600,29850,25450,18900,28540,26250,24430,28730,25170,29370),
-                        Firm=c(NA,"Empresa 5",NA,NA,NA,NA,NA,NA,"Empresa 10",NA,NA,NA,NA,NA,NA,"Empresa 5",NA,NA,NA,NA,NA,"Empresa 10",NA,NA,"Empresa 6","Empresa 5"),
-                        Bid=c(NA,24000,NA,NA,NA,NA,NA,NA,26000,NA,NA,NA,NA,NA,NA,23750,NA,NA,NA,NA,NA,25000,NA,NA,24130,23500),
-                        Firm=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Empresa 7","Empresa 10"),
-                        Bid=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,19000,24000),
-                        Firm=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Empresa 8",NA),
-                        Bid=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,26980,NA),
-                        Firm=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Empresa 9",NA),
-                        Bid=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,29210,NA),
-                        stringsAsFactors = FALSE)
+tableDefault <- data.frame(Contract=c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26),
+                           Date=c("2018-01-07","2018-01-14","2018-01-21","2018-01-28","2018-02-04","2018-02-11","2018-02-18","2018-02-25","2018-03-04","2018-03-11","2018-03-18","2018-03-25","2018-04-01","2018-04-08","2018-04-15","2018-04-22","2018-04-29","2018-05-06","2018-05-13","2018-05-20","2018-05-27","2018-06-03","2018-06-10","2018-06-17","2018-06-24","2018-07-01"),
+                           Firm=c("Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6","Empresa 1","Empresa 6"),
+                           Bid=c(19000,24000,26200,29000,25770,18200,29400,27070,25680,19200,25450,26590,26000,29920,18750,25350,27800,19100,25670,26050,17800,24200,28680,24680,18800,28380),
+                           Firm=c("Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7","Empresa 2","Empresa 7"),
+                           Bid=c(24720,19200,25660,26340,18000,24330,27850,17800,24140,27920,19000,27950,24480,27120,29110,28450,29260,27200,18500,29300,25090,19000,24880,29630,29350,19000),
+                           Firm=c("Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8","Empresa 3","Empresa 8"),
+                           Bid=c(26940,24640,18900,26720,26540,29710,18500,28040,27980,29680,28560,19000,28660,19500,24610,27610,24160,27250,28880,28800,25930,24870,19300,20000,24120,27610),
+                           Firm=c("Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9","Empresa 4","Empresa 9"),
+                           Bid=c(26520,26210,25340,19200,24480,29060,25370,29590,18500,25280,29420,25350,18500,28930,25760,18800,18600,29850,25450,18900,28540,26250,24430,28730,25170,29370),
+                           Firm=c(NA,"Empresa 5",NA,NA,NA,NA,NA,NA,"Empresa 10",NA,NA,NA,NA,NA,NA,"Empresa 5",NA,NA,NA,NA,NA,"Empresa 10",NA,NA,"Empresa 6","Empresa 5"),
+                           Bid=c(NA,24000,NA,NA,NA,NA,NA,NA,26000,NA,NA,NA,NA,NA,NA,23750,NA,NA,NA,NA,NA,25000,NA,NA,24130,23500),
+                           Firm=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Empresa 7","Empresa 10"),
+                           Bid=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,19000,24000),
+                           Firm=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Empresa 8",NA),
+                           Bid=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,26980,NA),
+                           Firm=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Empresa 9",NA),
+                           Bid=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,29210,NA),
+                           stringsAsFactors = FALSE)
 
 ## Aplication definition
 header <- dashboardHeader(
@@ -71,16 +73,39 @@ body <- dashboardBody(
     tabItem(
       tabName = "menu1",
       fluidRow(
-        column(3, fileInput("xlsxFile", label = h3("Upload a xlsx file"), multiple = FALSE,placeholder = "No file selected",buttonLabel = "Browse...",width = "100%",accept = c(".xlsx"))),
-        column(4, h6("")),
-        column(2, actionButton("summitXLSX", label = "Summit Excel", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth")),
-        column(3, numericInput("numberColumn", label = h3("Introduce the number of aditional columns with information relative to a contract"), value = 2, width = "100%", min = 1, max = 100,step = 1))
+        column(6,
+               box(
+                 h3("Select the starting data set"),
+                 hr(),
+                 selectInput("defaultData", label = "", choices = list("Default data set" = 1, "Upload a file" = 0), selected = 1),
+                 width = "100%",
+                 height = "100%",
+                 background = "blue"
+               )
+        ),
+        column(4,
+               actionButton("summitDefault", label = "Summit default", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth")
+        )
       ),
       fluidRow(
-        column(3, fileInput("csvFile", label = h3("Upload a csv file"), multiple = FALSE, placeholder = "No file selected",buttonLabel = "Browse...",width = "100%",accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv"))),
-        column(4, radioButtons("sep", h3("Separator"), choices = c(Comma = ",", Semicolon = ";", Tab = "\t"), selected = ";", inline = TRUE)),
-        column(2, actionButton("summitCSV", label = "Summit Csv", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
+        column(8,
+               fluidRow(
+                 column(3, fileInput("xlsxFile", label = h3("Upload a xlsx file"), multiple = FALSE,placeholder = "No file selected",buttonLabel = "Browse...",width = "100%",accept = c(".xlsx"))),
+                 column(4, h6("")),
+                 column(2, actionButton("summitXLSX", label = "Summit Excel", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
+               )
+        )
       ),
+      fluidRow(
+        column(8,
+               fluidRow(
+                 column(3, fileInput("csvFile", label = h3("Upload a csv file"), multiple = FALSE, placeholder = "No file selected",buttonLabel = "Browse...",width = "100%",accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv"))),
+                 column(4, radioButtons("sep", h3("Separator"), choices = c(Comma = ",", Semicolon = ";", Tab = "\t"), selected = ";", inline = TRUE)),
+                 column(2, actionButton("summitCSV", label = "Summit Csv", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
+               )
+        )
+      ),
+      numericInput("numberColumn", label = h3("Introduce the number of aditional columns with information relative to a contract"), value = 2, width = "100%", min = 1, max = 100,step = 1),
       tableOutput("tabla1"),
       tableOutput("tabla2")
     ),
@@ -99,23 +124,25 @@ body <- dashboardBody(
       tabName = "menu3",
       fluidRow(
         column(10,
-          box(fluidRow(
-            column(4, radioButtons("firmOne", label = h4("Select one firm:"),
-                                   choices = list("Firm1" = "Firm1", "Firm2" = "Firm2", "Firm3" = "Firm3", "Firm4" = "Firm4", "Firm5" = "Firm5", "Firm6" = "Firm6", "Firm7" = "Firm7", "Firm8" = "Firm8", "Firm9" = "Firm9", "Firm10" = "Firm10"), 
-                                   selected = "Firm1")),
-            column(4, radioButtons("firmTwo", label = h4("Select another different firm:"),
-                                   choices = list("Firm1" = "Firm1", "Firm2" = "Firm2", "Firm3" = "Firm3", "Firm4" = "Firm4", "Firm5" = "Firm5", "Firm6" = "Firm6", "Firm7" = "Firm7", "Firm8" = "Firm8", "Firm9" = "Firm9", "Firm10" = "Firm10"), 
-                                   selected = "Firm2"))
-          ),
-          width = "100%",
-          height = "350px",
-          background = "light-blue")
+               box(fluidRow(
+                 column(4, radioButtons("firmOne", label = h4("Select one firm:"),
+                                        choices = list("You have to upload a file and summit"), 
+                                        selected = "You have to upload a file and summit")),
+                 column(4, radioButtons("firmTwo", label = h4("Select another different firm:"),
+                                        choices = list("You have to upload a file and summit"), 
+                                        selected = "You have to upload a file and summit"))
+               ),
+               width = "100%",
+               height = "350px",
+               background = "light-blue")
         ),
         column(2, actionButton("show", label = "Show Graph", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth")
         )
       ),
       fluidRow(
-        column(10, plotlyOutput("Graph2D"))
+        column(8,
+               plotlyOutput("Graph2D")
+        )
       )
     ),
     tabItem(
@@ -133,23 +160,23 @@ body <- dashboardBody(
       tabName = "menu6",
       fluidRow(
         column(6,
-                 fluidRow(
-                   column(8,
-                          box(
+               fluidRow(
+                 column(8,
+                        box(
                           checkboxGroupButtons("groupBidding", label = h4("Select the firms that you want to analize:"),individual = TRUE, checkIcon = icon("thumbs-up"),
                                                choices = list("You have to upload a file and summit"), direction = "vertical", status = "warning"),
                           actionButton("ShowContracts", label = "Show contracts", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"),
                           width = "100%",
                           height = "100%",
                           background = "aqua")
-                   )
                  )
-               ),
+               )
+        ),
         column(6,
                h3("The contracts in which the selected firms have bid together are the following :"),
                br(),
                tableOutput("HolaQueTal")
-               )
+        )
       )
       
     ),
@@ -157,8 +184,8 @@ body <- dashboardBody(
       tabName = "menu7",
       fluidRow(
         column(12,
-          h1("Firm Network"),
-          visNetworkOutput("network")
+               h1("Firm Network"),
+               visNetworkOutput("network")
         )
       )
     ),
@@ -166,8 +193,8 @@ body <- dashboardBody(
       tabName = "menu8",
       fluidRow(
         column(12,
-          h1("Final table"),
-          dataTableOutput("tablaFinal")
+               h1("Final table"),
+               dataTableOutput("tablaFinal")
         )
       )
     )
@@ -177,11 +204,11 @@ body <- dashboardBody(
 ui <- dashboardPage(header, sidebar, body)
 
 server <- function(input, output, session) {
-
-  graphic2Dfuntion <- function(FirstFirm, SecondFirm){
+  
+  graphic2Dfuntion <- function(FirstFirm, SecondFirm, columnNumber){
     
     BidData <- read.csv("./tableCSV.csv", header = TRUE)
-    BidData <- BidData[,seq(-1*(input$numberColumn),-2,1)]
+    BidData <- BidData[,seq(-1*(columnNumber),-2,1)]
     
     a <- which(BidData == FirstFirm, arr.ind = TRUE)
     b <- which(BidData == SecondFirm, arr.ind = TRUE)
@@ -225,13 +252,13 @@ server <- function(input, output, session) {
     colnames(comparisonTable) <- c("Contracts", FirstFirm, SecondFirm, "MaxBid", "MinBid",paste0(FirstFirm,"_Nomalized"),paste0(SecondFirm,"_Nomalized"),"CompetitiveZones","Competitive","NonCompetitive")
     
     graphic <- plot_ly(data = comparisonTable, x = comparisonTable[,6], y = comparisonTable[,9], type = "scatter",mode = "markers" , name="Competitive",
-                       marker = list(color = 'rgb(100, 150, 255)',line = list(color = 'rgb(0, 0, 255)', width = 0.5))) %>%
-      layout(title = "Normalized Graph", titlefont = list(size = 30,color = 'rgb(47, 47, 147)'),
-             yaxis = list(linecolor = toRGB("black"),color = toRGB("black"),title = FirstFirm, range = c(-0.05,1.05), titlefont = list(size = 18,color = 'rgb(0, 0, 0)'), tickfont = list(size = 12,color = 'rgb(0, 0, 0)')),
-             xaxis = list(linecolor = toRGB("black"),color = toRGB("black"),title = SecondFirm, titlefont = list(size = 18,color = 'rgb(0, 0, 0)'), tickfont = list(size = 12,color = 'rgb(0, 0, 0)')),
-             margin = list(t = 75, b = 50,r = 10,l = 80), plot_bgcolor = 'rgb(255, 255, 255)', paper_bgcolor  = 'rgb(186, 186, 186)', barmode = 'group', bargap = 10,
-             legend = list(x = 0.18, y = 1.08,orientation = 'h')) %>%
-      add_trace(y= comparisonTable[,10],type = "scatter",mode = "markers", name="Non competitive",marker = list(color = 'rgb(255,50,50)',line = list(color = 'rgb(255,10,10)', width = 0.5)))
+                       marker = list(color = 'rgb(100, 150, 255)', size = 15,line = list(color = 'rgb(0, 0, 255)', width = 1))) %>%
+      layout(title = "", titlefont = list(size = 1,color = 'rgb(47, 47, 147)'), autosize = TRUE, width = "350px", height = "350px",
+             yaxis = list(color = toRGB("black"),title = FirstFirm, range = c(-0.05,1.05), dtick = 0.5, gridcolor = toRGB("black"), titlefont = list(size = 18,color = 'rgb(255, 255, 255)'), tickfont = list(size = 12,color = 'rgb(0, 0, 0)')),
+             xaxis = list(color = toRGB("black"), title = SecondFirm, range = c(-0.05,1.05), dtick = 0.5, gridcolor = toRGB("black"), titlefont = list(size = 18,color = 'rgb(255, 255, 255)'), tickfont = list(size = 12,color = 'rgb(0, 0, 0)')),
+             margin = list(t = 50, b = 50,r = 50,l = 50, autoexpand = FALSE), plot_bgcolor = toRGB("white"), paper_bgcolor  = 'rgb(60, 141, 188)', barmode = 'group', bargap = 10,
+             showlegend = FALSE) %>%
+      add_trace(y= comparisonTable[,10],type = "scatter",mode = "markers", name="Non competitive",marker = list(color = 'rgb(255,100,100)', size = 15,line = list(color = 'rgb(150,50,50)', width = 1)))
     
     results <- list(graphic)
     return(graphic)
@@ -277,10 +304,12 @@ server <- function(input, output, session) {
     sampleCV <<- sort(sampleCV[,1], decreasing = TRUE)
   }
   
-  functionFirmList <- function(numberColumn){
+  functionFirmList <- function(columnNumber){
+    
     tableCSV <- read.csv("./tableCSV.csv", stringsAsFactors = FALSE)
-    for(i in seq(1+numberColumn,ncol(tableCSV),2)){
-      if(i == 1+numberColumn){
+    
+    for(i in seq(1+columnNumber,ncol(tableCSV),2)){
+      if(i == 1+columnNumber){
         tmp <- data.frame(tableCSV[,i][!is.na(tableCSV[,i])], stringsAsFactors = FALSE)
         tmp1 <- data.frame(tableCSV[,i], stringsAsFactors = FALSE)
       }else{
@@ -291,8 +320,8 @@ server <- function(input, output, session) {
     allFirms <- data.frame(unique(tmp), stringsAsFactors = FALSE)
     allFirms <- data.frame(allFirms[which(allFirms[,1]!=""),], stringsAsFactors = FALSE)
     colnames(allFirms) <- "Firms"
-    for(i in seq(1+numberColumn,ncol(tableCSV),2)){
-      if(i == 1+numberColumn){
+    for(i in seq(1+columnNumber,ncol(tableCSV),2)){
+      if(i == 1+columnNumber){
         tmp <- tableCSV[,i]
       }else{
         tmp <- cbind(tmp, tableCSV[,i])
@@ -347,12 +376,12 @@ server <- function(input, output, session) {
                         value = 0.5,
                         shape = c("circle"),
                         title = paste0("<p><b>", allFirms$Firms,"</b><br>Node !</p>"),
-                        shadow = FALSE)
+                        shadow = FALSE,
+                        stringsAsFactors = FALSE)
     
-    links <- data.frame("from" = 0, "to" = 0, "width" = 0, stringsAsFactors = FALSE)
+    links <- data.frame("from" = 0, "to" = 0, "weight" = 0, stringsAsFactors = FALSE)
     for(firmFrom in 2:nrow(nodes)){
       for(firmTo in (firmFrom+1):ncol(tableFirms)){
-        print(paste0(firmFrom-1,"-",firmTo-1))
         if(length(which(tableFirms[,firmFrom] == "ok" & tableFirms[,firmTo] == "ok"))>0){
           links <- rbind(links, c(firmFrom-1, firmTo-1, length(which(tableFirms[,firmFrom] == "ok" & tableFirms[,firmTo] == "ok"))))
         }
@@ -361,11 +390,18 @@ server <- function(input, output, session) {
     links <- links[-1,]
     
     edges <- data.frame(from = links$from,
-                        to = links$to,length = 200,
-                        width = links$width/3,
+                        to = links$to,
+                        length = 200,
+                        width = links$weight/3,
                         dashes = FALSE,
                         smooth = FALSE,
-                        shadow = FALSE) 
+                        shadow = FALSE)
+    
+    net <- graph_from_data_frame(d=links, vertices=nodes, directed=T)
+    cfg <- cluster_fast_greedy(as.undirected(net))
+    for (i in 1:length(cfg$membership)) {
+      nodes$group[i] <- paste0("Group ",cfg$membership[i])
+    }
     
     firmNetwork <- visNetwork(nodes, edges, height = "500px", width = "100%") %>% 
       visInteraction(dragNodes = TRUE, 
@@ -383,9 +419,9 @@ server <- function(input, output, session) {
     
     tryCatch({
       df <- read.xlsx(input$xlsxFile$datapath,
-                     header = TRUE,
-                     sheetIndex = 1,
-                     stringsAsFactors=FALSE)
+                      header = TRUE,
+                      sheetIndex = 1,
+                      stringsAsFactors=FALSE)
     },
     error = function(e) {
       # return a safeError if a parsing error occurs
@@ -424,28 +460,39 @@ server <- function(input, output, session) {
     return(df)
   })
   
-  observeEvent((input$summitCSV|input$summitXLSX)&input$ShowSuspicious ,{
+  observeEvent(input$defaultData, {
+    defaultValues <- input$defaultData
+  })
+  
+  observeEvent(input$summitDefault, {
+    write.csv(tableDefault,"./tableCSV.csv", row.names=FALSE)
+    requirement1 <<- "Hello"
+  })
+  
+  observeEvent((input$summitCSV|input$summitXLSX|input$summitDefault)&input$ShowSuspicious ,{
     
     if(requirement1=="Hello"){
       
-      tablaCSV <- read.csv("./tableCSV.csv", header = TRUE)
+      columnNumber <<- input$numberColumn
+      tableCSV <- read.csv("./tableCSV.csv", header = TRUE)
       
-      tablaCSV[tablaCSV==""]=NA
       
-      tableMarkers <- data.frame("Contracts" = tablaCSV$Contract)
+      tableCSV[tableCSV==""]=NA
+      
+      tableMarkers <- data.frame("Contracts" = tableCSV$Contract)
       tableMarkers$CV <- 0
       tableMarkers$RD <- 0
       tableMarkers$Suspicious <- ""
       tableMarkers$Winner <- 0
-      for(i in 1:nrow(tablaCSV)){
+      for(i in 1:nrow(tableCSV)){
         Bids <- c()
-        for(j in seq(from=input$numberColumn+2, to=ncol(tablaCSV), by=2)){
-          if(!is.na(tablaCSV[i,j])){
-            Bids <- append(Bids,as.numeric(tablaCSV[i,j]))
+        for(j in seq(from=columnNumber+2, to=ncol(tableCSV), by=2)){
+          if(!is.na(tableCSV[i,j])){
+            Bids <- append(Bids,as.numeric(tableCSV[i,j]))
           }
         }
         tableMarkers$CV[i] <- sd(Bids)/mean(Bids)
-        tableMarkers$Winner[i] <- as.character(tablaCSV[i,which(min(Bids)==Bids)[1]*2-1+input$numberColumn])
+        tableMarkers$Winner[i] <- as.character(tableCSV[i,which(min(Bids)==Bids)[1]*2-1+columnNumber])
         Bids <- sort(Bids,decreasing = FALSE)
         tableMarkers$RD[i] <- (Bids[2]-Bids[1])/sd(Bids[2:length(Bids)])
       }
@@ -456,7 +503,7 @@ server <- function(input, output, session) {
       write.csv(tableMarkers,"./tableMarkers.csv", row.names = FALSE)
       
       tmp <- data.frame("CV"=tableMarkers$CV)
-      tmp$Date <- tablaCSV$Date
+      tmp$Date <- tableCSV$Date
       
       CVgraph <<- plot_ly(data = tmp, x =~Date, y =~CV, type = "scatter",mode = "markers" , name="Competitive", marker = list(color = 'rgb(100, 150, 255)',line = list(color = 'rgb(0, 0, 255)', width = 0.5))) %>%
         layout(title = "Coeficient of Variation over time", titlefont = list(size = 20,color = 'rgb(47, 47, 147)'),
@@ -474,7 +521,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$show,{
     output$Graph2D <<- renderPlotly({
-      graphic2Dfuntion(input$firmOne, input$firmTwo)
+      graphic2Dfuntion(input$firmOne, input$firmTwo, columnNumber)
     })
   })
   
@@ -486,7 +533,7 @@ server <- function(input, output, session) {
     tableMarkers$statisticalMarker <- NA
     tableCSV <- read.csv("./tableCSV.csv", header = TRUE)
     tableBids <- data.frame(tableCSV[,1])
-    for(i in seq(2+input$numberColumn,ncol(tableCSV),2)){
+    for(i in seq(2+columnNumber,ncol(tableCSV),2)){
       tableBids <- cbind(tableBids, tableCSV[,i])
     }
     tableBids <- tableBids[,-1]
@@ -502,17 +549,33 @@ server <- function(input, output, session) {
     
   })
   
-  observeEvent(input$summitCSV|input$summitXLSX,{
+  observeEvent(input$summitCSV|input$summitXLSX|input$summitDefault,{
     if(requirement1=="Hello"){
-      functionFirmList(input$numberColumn)
+      functionFirmList(columnNumber)
       
       x <- input$groupBidding
       # Can also set the label and select items
       updateCheckboxGroupButtons(session, "groupBidding",
-                         label = "Select the firms that you want to analize:",
+                                 label = "Select the firms that you want to analize:",
+                                 choices = allFirms[,1],
+                                 selected = "No Firm selected"
+      )
+      
+      x <- input$firmOne
+      # Can also set the label and select items
+      updateRadioButtons(session, "firmOne",
+                         label = "Select the firms that you want to compare:",
                          choices = allFirms[,1],
                          selected = "No Firm selected"
       )
+      x <- input$firmTwo
+      # Can also set the label and select items
+      updateRadioButtons(session, "firmTwo",
+                         label = "Select the firms that you want to compare:",
+                         choices = allFirms[,1],
+                         selected = "No Firm selected"
+      )
+      
       output$network <- renderVisNetwork({
         networkFunction(allFirms,tableFirms)
       })
@@ -536,7 +599,7 @@ server <- function(input, output, session) {
       output$tablaFinal <- renderDataTable({FinalTable})
     }
   })
-
+  
 }
 shinyApp(ui, server, options = list(launch.browser=TRUE))
 
