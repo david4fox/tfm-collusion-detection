@@ -9,6 +9,7 @@
 # packages <- c("shiny","shinyjs","shinythemes","shinyWidgets","shinydashboard","xlsx","plotly","igraph","network","sna","ndtv","dplyr","visNetwork","rsconnect")
 # 
 # ipak(packages)
+
 library("shiny")
 library("shinyjs")
 library("shinythemes")
@@ -56,6 +57,7 @@ tableDefault <- data.frame(Contract=c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,
 header <- dashboardHeader(
   title = "Bid Rigging Screening"
 )
+
 sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("File input", tabName = "menu1", icon = icon("file-upload")),
@@ -68,6 +70,7 @@ sidebar <- dashboardSidebar(
     menuItem("Final table", tabName = "menu8", icon = icon("bullseye"))
   )
 )
+
 body <- dashboardBody(
   tabItems(
     tabItem(
@@ -133,7 +136,7 @@ body <- dashboardBody(
                                         selected = "You have to upload a file and summit"))
                ),
                width = "100%",
-               height = "350px",
+               height = "100%",
                background = "light-blue")
         ),
         column(2, actionButton("show", label = "Show Graph", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth")
@@ -184,9 +187,9 @@ body <- dashboardBody(
       tabName = "menu7",
       fluidRow(
         column(12,
-               checkboxGroupButtons("comunityType", label = h4("Select the community detection algorithm:"), individual = FALSE, checkIcon = icon("thumbs-up"),
+               radioButtons("comunityType", label = h4("Select the community detection algorithm:"),
                                     choices = list("cluster_edge_betweenness","cluster_label_prop","cluster_fast_greedy","cluster_leading_eigen","cluster_louvain","cluster_optimal","cluster_spinglass","cluster_walktrap"),
-                                    direction = "horizontal",selected = "cluster_fast_greedy")
+                                    selected = "cluster_fast_greedy", inline=TRUE)
         )
       ),
       fluidRow(
@@ -373,7 +376,7 @@ server <- function(input, output, session) {
     communContracts <<- tmp2[which(tmp2$frec == length(selectedFirmsPosition)),1]
   }
   
-  networkFunction <- function(allFirms,tableFirms){
+  networkFunction <- function(allFirms,tableFirms,communityAlgorithm){
     
     tableCSV <- read.csv("./tableCSV.csv", stringsAsFactors = FALSE)
     
@@ -406,9 +409,34 @@ server <- function(input, output, session) {
                         shadow = FALSE)
     
     net <- graph_from_data_frame(d=links, vertices=nodes, directed=T)
-    cfg <- cluster_fast_greedy(as.undirected(net))
-    for (i in 1:length(cfg$membership)) {
-      nodes$group[i] <- paste0("Group ",cfg$membership[i])
+    
+    if(communityAlgorithm=="cluster_edge_betweenness"){
+      tmp <- cluster_edge_betweenness(as.undirected(net), weights = E(net)$weight)
+    }
+    if(communityAlgorithm=="cluster_label_prop"){
+      tmp <- cluster_label_prop(as.undirected(net), weights = E(net)$weight)
+    }
+    if(communityAlgorithm=="cluster_fast_greedy"){
+      tmp <- cluster_fast_greedy(as.undirected(net), weights = E(net)$weight)
+    }
+    if(communityAlgorithm=="cluster_leading_eigen"){
+      tmp <- cluster_leading_eigen(as.undirected(net), weights = E(net)$weight)
+    }
+    if(communityAlgorithm=="cluster_louvain"){
+      tmp <- cluster_louvain(as.undirected(net), weights = E(net)$weight)
+    }
+    if(communityAlgorithm=="cluster_optimal"){
+      tmp <- cluster_optimal(as.undirected(net), weights = E(net)$weight)
+    }
+    if(communityAlgorithm=="cluster_spinglass"){
+      tmp <- cluster_spinglass(as.undirected(net), weights = E(net)$weight)
+    }
+    if(communityAlgorithm=="cluster_walktrap"){
+      tmp <- cluster_walktrap(as.undirected(net), weights = E(net)$weight)
+    }
+
+    for (i in 1:length(tmp$membership)) {
+      nodes$group[i] <- paste0("Group ",tmp$membership[i])
     }
     
     firmNetwork <- visNetwork(nodes, edges, height = "500px", width = "100%") %>% 
@@ -417,7 +445,7 @@ server <- function(input, output, session) {
                      zoomView = FALSE) %>%
       visIgraphLayout() %>%
       visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE, selectedBy = "group") %>%
-      visConfigure(enabled = TRUE)
+      visConfigure(enabled = FALSE)
     return(firmNetwork)
   }
   
@@ -574,18 +602,18 @@ server <- function(input, output, session) {
       updateRadioButtons(session, "firmOne",
                          label = "Select the firms that you want to compare:",
                          choices = allFirms[,1],
-                         selected = "No Firm selected"
+                         selected = allFirms[1,1]
       )
       x <- input$firmTwo
       # Can also set the label and select items
       updateRadioButtons(session, "firmTwo",
-                         label = "Select the firms that you want to compare:",
+                         label = "",
                          choices = allFirms[,1],
-                         selected = "No Firm selected"
+                         selected = allFirms[2,1]
       )
       
       output$network <- renderVisNetwork({
-        networkFunction(allFirms,tableFirms)
+        networkFunction(allFirms,tableFirms,input$comunityType)
       })
     }
   })
@@ -609,51 +637,8 @@ server <- function(input, output, session) {
   })
   
 }
+
 shinyApp(ui, server, options = list(launch.browser=TRUE))
-
-
-
-
-# 
-# net <- graph_from_data_frame(d=edges, vertices=nodes, directed=F) 
-# class(net)
-# plot(net, edge.arrow.size=.4)
-# plot(net, edge.color="orange", vertex.color="gray50") 
-# 
-# ceb <- cluster_edge_betweenness(as.undirected(net), weights = E(net)$weight)
-# clp <- cluster_label_prop(as.undirected(net), weights = E(net)$weight)
-# cfg <- cluster_fast_greedy(as.undirected(net), weights = E(net)$weight)
-# cle <- cluster_leading_eigen(as.undirected(net), weights = E(net)$weight)
-# cl <- cluster_louvain(as.undirected(net), weights = E(net)$weight)
-# co <- cluster_optimal(as.undirected(net), weights = E(net)$weight)
-# cs <- cluster_spinglass(as.undirected(net), weights = E(net)$weight)
-# cw <- cluster_walktrap(as.undirected(net), weights = E(net)$weight)
-# 
-# cfg$membership
-# for (i in 1:length(cfg$membership)) {
-#   nodes$group[i] <- paste0("Group ",cfg$membership[i])
-# }
-# 
-# ceb$membership
-# clp$membership
-# cfg$membership
-# cle$membership
-# cl$membership
-# co$membership
-# cs$membership
-# cw$membership
-# 
-# 
-# plot(ceb, net)
-# plot(clp, net)
-# plot(cfg, net)
-# plot(cle, net)
-# plot(cl, net)
-# plot(co, net)
-# plot(cs, net)
-# plot(cw, net)
-# 
-
 
 
 
