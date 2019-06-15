@@ -184,6 +184,13 @@ body <- dashboardBody(
       tabName = "menu7",
       fluidRow(
         column(12,
+               checkboxGroupButtons("comunityType", label = h4("Select the community detection algorithm:"), individual = FALSE, checkIcon = icon("thumbs-up"),
+                                    choices = list("cluster_edge_betweenness","cluster_label_prop","cluster_fast_greedy","cluster_leading_eigen","cluster_louvain","cluster_optimal","cluster_spinglass","cluster_walktrap"),
+                                    direction = "horizontal",selected = "cluster_fast_greedy")
+        )
+      ),
+      fluidRow(
+        column(12,
                h1("Firm Network"),
                visNetworkOutput("network")
         )
@@ -373,10 +380,11 @@ server <- function(input, output, session) {
     nodes <- data.frame(id = 1:nrow(allFirms),
                         label = allFirms$Firms,
                         group = c("Group A"),
-                        value = 0.5,
+                        value = 0.05,
                         shape = c("circle"),
                         title = paste0("<p><b>", allFirms$Firms,"</b><br>Node !</p>"),
                         shadow = FALSE,
+                        size = 10,
                         stringsAsFactors = FALSE)
     
     links <- data.frame("from" = 0, "to" = 0, "weight" = 0, stringsAsFactors = FALSE)
@@ -407,8 +415,8 @@ server <- function(input, output, session) {
       visInteraction(dragNodes = TRUE, 
                      dragView = FALSE, 
                      zoomView = FALSE) %>%
-      visLayout(randomSeed = 42) %>%
-      visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) %>%
+      visIgraphLayout() %>%
+      visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE, selectedBy = "group") %>%
       visConfigure(enabled = TRUE)
     return(firmNetwork)
   }
@@ -606,8 +614,45 @@ shinyApp(ui, server, options = list(launch.browser=TRUE))
 
 
 
-
-
+# 
+# net <- graph_from_data_frame(d=edges, vertices=nodes, directed=F) 
+# class(net)
+# plot(net, edge.arrow.size=.4)
+# plot(net, edge.color="orange", vertex.color="gray50") 
+# 
+# ceb <- cluster_edge_betweenness(as.undirected(net), weights = E(net)$weight)
+# clp <- cluster_label_prop(as.undirected(net), weights = E(net)$weight)
+# cfg <- cluster_fast_greedy(as.undirected(net), weights = E(net)$weight)
+# cle <- cluster_leading_eigen(as.undirected(net), weights = E(net)$weight)
+# cl <- cluster_louvain(as.undirected(net), weights = E(net)$weight)
+# co <- cluster_optimal(as.undirected(net), weights = E(net)$weight)
+# cs <- cluster_spinglass(as.undirected(net), weights = E(net)$weight)
+# cw <- cluster_walktrap(as.undirected(net), weights = E(net)$weight)
+# 
+# cfg$membership
+# for (i in 1:length(cfg$membership)) {
+#   nodes$group[i] <- paste0("Group ",cfg$membership[i])
+# }
+# 
+# ceb$membership
+# clp$membership
+# cfg$membership
+# cle$membership
+# cl$membership
+# co$membership
+# cs$membership
+# cw$membership
+# 
+# 
+# plot(ceb, net)
+# plot(clp, net)
+# plot(cfg, net)
+# plot(cle, net)
+# plot(cl, net)
+# plot(co, net)
+# plot(cs, net)
+# plot(cw, net)
+# 
 
 
 
