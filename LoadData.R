@@ -31,7 +31,7 @@ tableMarkers <- 0
 requirement1 <- 0
 requirement2 <- 0
 FinalTable <- 0
-columnNumber <- 2
+columnNumber <- 0
 listOfFirms <- list("No file uploaded")
 tableDefault <- data.frame(Contract=c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76),
                            Date=c("2019-01-02","2019-01-04","2019-01-07","2019-01-09","2019-01-11","2019-01-14","2019-01-16","2019-01-18","2019-01-21","2019-01-23","2019-01-25","2019-01-28","2019-01-30","2019-02-01","2019-02-04","2019-02-06","2019-02-08","2019-02-11","2019-02-13","2019-02-15","2019-02-18","2019-02-20","2019-02-22","2019-02-25","2019-02-27","2019-03-01","2019-03-04","2019-03-06","2019-03-08","2019-03-11","2019-03-13","2019-03-15","2019-03-18","2019-03-20","2019-03-22","2019-03-25","2019-03-27","2019-03-29","2019-04-01","2019-04-03","2019-04-05","2019-04-08","2019-04-10","2019-04-12","2019-04-15","2019-04-17","2019-04-19","2019-04-22","2019-04-24","2019-04-26","2019-04-29","2019-05-01","2019-05-03","2019-05-06","2019-05-08","2019-05-10","2019-05-13","2019-05-15","2019-05-17","2019-05-20","2019-05-22","2019-05-24","2019-05-27","2019-05-29","2019-05-31","2019-06-03","2019-06-05","2019-06-07","2019-06-10","2019-06-12","2019-06-14","2019-06-17","2019-06-19","2019-06-21","2019-06-24","2019-06-26"),
@@ -61,13 +61,14 @@ header <- dashboardHeader(
 sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("File input", tabName = "menu1", icon = icon("file-upload")),
-    menuItem("DataTable", tabName = "menu2", icon = icon("table")),
+    menuItem("Markers", tabName = "menu2", icon = icon("table")),
     menuItem("2D graph", tabName = "menu3", icon = icon("bar-chart-o")),
     menuItem("Variance Screning", tabName = "menu4", icon = icon("angle-double-right")),
-    menuItem("Final table", tabName = "menu5", icon = icon("list-alt")),
+    menuItem("Probabilities", tabName = "menu5", icon = icon("list-alt")),
     menuItem("Group Bidding", tabName = "menu6", icon = icon("grip-horizontal")),
     menuItem("Community network", tabName = "menu7", icon = icon("project-diagram")),
-    menuItem("Final table", tabName = "menu8", icon = icon("bullseye"))
+    menuItem("Summary table", tabName = "menu8", icon = icon("bullseye")),
+    menuItem("Export data", tabName = "menu9", icon = icon("download"))
   )
 )
 
@@ -75,50 +76,53 @@ body <- dashboardBody(
   tabItems(
     tabItem(
       tabName = "menu1",
-      fluidRow(
-        column(6,
-               box(
+      box(
+        fluidRow(
+          column(5,
                  h3("Select the starting data set"),
                  hr(),
-                 selectInput("defaultData", label = "", choices = list("Default data set" = 1, "Upload a file" = 0), selected = 1),
-                 width = "100%",
-                 height = "100%",
-                 background = "blue"
-               )
-        ),
-        column(4,
-               actionButton("summitDefault", label = "Summit default", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth")
-        )
+                 h4("If you want to test the application with a previously defined data set, click on the button")
+                 #selectInput("defaultData", label = "", choices = list("Default data set" = 1, "Upload a file" = 0), selected = 1)
+                 ),
+          column(2,
+                 h6("")),
+          column(2,
+                 actionButton("summitDefault", label = "Summit default", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth")
+                 )
+          ),
+      width = "500px",
+      height = "100%",
+      background = "blue"
       ),
-      fluidRow(
-        column(8,
-               fluidRow(
-                 column(3, fileInput("xlsxFile", label = h3("Upload a xlsx file"), multiple = FALSE,placeholder = "No file selected",buttonLabel = "Browse...",width = "100%",accept = c(".xlsx"))),
-                 column(4, h6("")),
-                 column(2, actionButton("summitXLSX", label = "Summit Excel", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
-               )
-        )
+      box(
+        fluidRow(
+          column(5, fileInput("xlsxFile", label = h4("Upload a xlsx file"), multiple = FALSE,placeholder = "No file selected",buttonLabel = "Browse...",width = "100%",accept = c(".xlsx"))),
+          column(2, h6("")),
+          column(2, actionButton("summitXLSX", label = "Summit Excel", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
+          ),
+        fluidRow(
+          column(5, fileInput("csvFile", label = h4("Upload a csv file"), multiple = FALSE, placeholder = "No file selected",buttonLabel = "Browse...",width = "100%",accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv"))),
+          column(2, radioButtons("sep", h4("Separator"), choices = c(Comma = ",", Semicolon = ";", Tab = "\t"), selected = ";", inline = TRUE)),
+          column(2, actionButton("summitCSV", label = "Summit CSV", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
+          ),
+        numericInput("numberColumn", label = h4("Introduce the number of aditional columns with information relative to a contract"), value = 0, width = "41%", min = 0, max = 100,step = 1),
+        title = "If you want to upload a file, unfold the drop-down",
+        collapsible = TRUE,
+        collapsed = TRUE,
+        width = "500px%",
+        height = "100%",
+        background = "blue"
       ),
-      fluidRow(
-        column(8,
-               fluidRow(
-                 column(3, fileInput("csvFile", label = h3("Upload a csv file"), multiple = FALSE, placeholder = "No file selected",buttonLabel = "Browse...",width = "100%",accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv"))),
-                 column(4, radioButtons("sep", h3("Separator"), choices = c(Comma = ",", Semicolon = ";", Tab = "\t"), selected = ";", inline = TRUE)),
-                 column(2, actionButton("summitCSV", label = "Summit Csv", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
-               )
-        )
-      ),
-      numericInput("numberColumn", label = h3("Introduce the number of aditional columns with information relative to a contract"), value = 2, width = "100%", min = 1, max = 100,step = 1),
       tableOutput("tabla1"),
       tableOutput("tabla2")
     ),
     tabItem(
       tabName = "menu2",
       fluidRow(
-        column(2, h2("Data table")),
-        column(2, numericInput("RDlimit", label = "", value = 1, width = "100%", min = 0, max = 100,step = 0.01)),
-        column(2, numericInput("CVlimit", label = "", value = 0.06, width = "100%", min = 0, max = 1,step = 0.001)),
-        column(4,h6("")),
+        column(3, h2("Data table")),
+        column(2, numericInput("RDlimit", label = "RD limit", value = 1, width = "100%", min = 0, max = 100,step = 0.01)),
+        column(2, numericInput("CVlimit", label = "CV limit", value = 0.06, width = "100%", min = 0, max = 1,step = 0.001)),
+        column(3,h6("")),
         column(2, actionButton("ShowSuspicious", label = "Show Suspicious", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
       ),
       dataTableOutput("markersTable")
@@ -126,7 +130,7 @@ body <- dashboardBody(
     tabItem(
       tabName = "menu3",
       fluidRow(
-        column(10,
+        column(8,
                box(fluidRow(
                  column(4, radioButtons("firmOne", label = h4("Select one firm:"),
                                         choices = list("You have to upload a file and summit"), 
@@ -135,11 +139,10 @@ body <- dashboardBody(
                                         choices = list("You have to upload a file and summit"), 
                                         selected = "You have to upload a file and summit"))
                ),
+               title = "Select the firms that you want to compare:",
                width = "100%",
                height = "100%",
                background = "light-blue")
-        ),
-        column(2, actionButton("show", label = "Show Graph", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth")
         )
       ),
       fluidRow(
@@ -205,6 +208,14 @@ body <- dashboardBody(
         column(12,
                h1("Final table"),
                dataTableOutput("tablaFinal")
+        )
+      )
+    ),
+    tabItem(
+      tabName = "menu9",
+      fluidRow(
+        column(12,
+               h1("Download things")
         )
       )
     )
@@ -511,7 +522,7 @@ server <- function(input, output, session) {
     
     if(requirement1=="Hello"){
       
-      columnNumber <<- input$numberColumn
+      columnNumber <<- input$numberColumn + 2
       tableCSV <- read.csv("./tableCSV.csv", header = TRUE)
       
       
@@ -554,13 +565,11 @@ server <- function(input, output, session) {
       })
       
       output$markersTable <- renderDataTable({tableMarkers})
+      
+      output$Graph2D <<- renderPlotly({
+        graphic2Dfuntion(input$firmOne, input$firmTwo, columnNumber)
+      })
     }
-  })
-  
-  observeEvent(input$show,{
-    output$Graph2D <<- renderPlotly({
-      graphic2Dfuntion(input$firmOne, input$firmTwo, columnNumber)
-    })
   })
   
   observeEvent(input$DoIt,{
@@ -602,7 +611,7 @@ server <- function(input, output, session) {
       x <- input$firmOne
       # Can also set the label and select items
       updateRadioButtons(session, "firmOne",
-                         label = "Select the firms that you want to compare:",
+                         label = "",
                          choices = allFirms[,1],
                          selected = allFirms[1,1]
       )
