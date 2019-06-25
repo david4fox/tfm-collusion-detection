@@ -36,13 +36,13 @@ listOfFirms <- list("No file uploaded")
 tableDefault <- data.frame(Contract=c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76),
                            Date=c("2019-01-02","2019-01-04","2019-01-07","2019-01-09","2019-01-11","2019-01-14","2019-01-16","2019-01-18","2019-01-21","2019-01-23","2019-01-25","2019-01-28","2019-01-30","2019-02-01","2019-02-04","2019-02-06","2019-02-08","2019-02-11","2019-02-13","2019-02-15","2019-02-18","2019-02-20","2019-02-22","2019-02-25","2019-02-27","2019-03-01","2019-03-04","2019-03-06","2019-03-08","2019-03-11","2019-03-13","2019-03-15","2019-03-18","2019-03-20","2019-03-22","2019-03-25","2019-03-27","2019-03-29","2019-04-01","2019-04-03","2019-04-05","2019-04-08","2019-04-10","2019-04-12","2019-04-15","2019-04-17","2019-04-19","2019-04-22","2019-04-24","2019-04-26","2019-04-29","2019-05-01","2019-05-03","2019-05-06","2019-05-08","2019-05-10","2019-05-13","2019-05-15","2019-05-17","2019-05-20","2019-05-22","2019-05-24","2019-05-27","2019-05-29","2019-05-31","2019-06-03","2019-06-05","2019-06-07","2019-06-10","2019-06-12","2019-06-14","2019-06-17","2019-06-19","2019-06-21","2019-06-24","2019-06-26"),
                            Firm=c("Empresa 5","Empresa 2","Empresa 7","Empresa 1","Empresa 7","Empresa 5","Empresa 5","Empresa 9","Empresa 7","Empresa 3","Empresa 4","Empresa 7","Empresa 2","Empresa 7","Empresa 7","Empresa 9","Empresa 1","Empresa 3","Empresa 6","Empresa 3","Empresa 8","Empresa 5","Empresa 7","Empresa 5","Empresa 6","Empresa 6","Empresa 6","Empresa 6","Empresa 6","Empresa 6","Empresa 6","Empresa 6","Empresa 6","Empresa 6","Empresa 6","Empresa 6","Empresa 6","Empresa 8","Empresa 5","Empresa 9","Empresa 1","Empresa 1","Empresa 7","Empresa 7","Empresa 1","Empresa 8","Empresa 8","Empresa 5","Empresa 1","Empresa 3","Empresa 6","Empresa 4","Empresa 1","Empresa 1","Empresa 1","Empresa 1","Empresa 1","Empresa 1","Empresa 1","Empresa 1","Empresa 1","Empresa 1","Empresa 1","Empresa 1","Empresa 1","Empresa 4","Empresa 1","Empresa 2","Empresa 1","Empresa 5","Empresa 2","Empresa 3","Empresa 5","Empresa 9","Empresa 8","Empresa 3"),
-                           Bid=c(23720,22090,24730,28630,28130,21000,21260,27390,23640,29180,23930,28390,27980,29650,19310,21500,23540,19930,21020,28160,22300,21860,17310,27260,24000,29000,24200,27070,24500,26590,29920,27350,25500,27050,24200,26680,28380,27860,22670,16930,25530,19190,22130,19310,17180,28450,25250,26650,19530,18640,16150,20610,23000,26200,25770,29400,25680,25450,26000,23750,27800,25670,24300,25680,23670,21970,29310,23760,17450,23600,17050,17870,21350,27760,16360,23660),
+                           Bid=c(23720,22090,24730,28630,28130,21000,21260,27390,23640,29180,23930,28390,27980,29650,19310,21500,23540,19930,21020,28160,22300,21860,17310,27260,24000,29000,24200,27070,24500,26590,29920,27350,25500,27050,24200,26680,28380,27860,22670,16930,25530,19190,22130,19310,17180,23810,25250,26650,19530,18640,16150,20610,23000,26200,25770,29400,25680,25450,26000,23750,27800,25670,24300,25680,23670,21970,29310,23760,17450,23600,17050,17870,21350,27760,16360,17070),
                            Firm=c("Empresa 10","Empresa 6","Empresa 8","Empresa 10","Empresa 2","Empresa 6","Empresa 6","Empresa 1","Empresa 6","Empresa 5","Empresa 10","Empresa 9","Empresa 7","Empresa 3","Empresa 8","Empresa 10","Empresa 8","Empresa 1","Empresa 9","Empresa 10","Empresa 5","Empresa 10","Empresa 1","Empresa 4","Empresa 7","Empresa 7","Empresa 7","Empresa 7","Empresa 7","Empresa 7","Empresa 7","Empresa 7","Empresa 7","Empresa 7","Empresa 7","Empresa 7","Empresa 7","Empresa 4","Empresa 9","Empresa 3","Empresa 10","Empresa 2","Empresa 1","Empresa 5","Empresa 6","Empresa 1","Empresa 1","Empresa 8","Empresa 8","Empresa 2","Empresa 8","Empresa 9","Empresa 2","Empresa 2","Empresa 2","Empresa 2","Empresa 2","Empresa 2","Empresa 2","Empresa 2","Empresa 2","Empresa 2","Empresa 2","Empresa 2","Empresa 2","Empresa 1","Empresa 5","Empresa 8","Empresa 10","Empresa 2","Empresa 3","Empresa 4","Empresa 2","Empresa 2","Empresa 7","Empresa 2"),
                            Bid=c(21540,26710,29950,26700,25440,22200,28390,22550,29090,27030,28010,18520,18710,23300,22790,19010,16970,27950,26010,24660,25750,27690,21730,16330,22000,26340,27330,24000,27920,27950,27120,28450,27200,29300,22500,29630,25800,19960,27700,17480,21000,16360,21180,24190,20370,24860,24530,23820,16720,19570,21310,26410,25720,25660,23200,27850,27140,27800,27480,26110,29260,23850,25090,24880,26350,19940,29650,29130,19130,18060,28670,20010,19590,20020,28510,22780),
                            Firm=c("Empresa 1","Empresa 9","Empresa 9","Empresa 6","Empresa 6","Empresa 10","Empresa 9","Empresa 6","Empresa 1","Empresa 2","Empresa 1","Empresa 2","Empresa 9","Empresa 4","Empresa 1","Empresa 6","Empresa 4","Empresa 7","Empresa 3","Empresa 1","Empresa 3","Empresa 7","Empresa 2","Empresa 6","Empresa 8","Empresa 8","Empresa 8","Empresa 8","Empresa 8","Empresa 8","Empresa 8","Empresa 8","Empresa 8","Empresa 8","Empresa 8","Empresa 8","Empresa 8","Empresa 9","Empresa 7","Empresa 7","Empresa 4","Empresa 10","Empresa 9","Empresa 3","Empresa 3","Empresa 9","Empresa 7","Empresa 9","Empresa 2","Empresa 8","Empresa 5","Empresa 5","Empresa 3","Empresa 3","Empresa 3","Empresa 3","Empresa 3","Empresa 3","Empresa 3","Empresa 3","Empresa 3","Empresa 3","Empresa 3","Empresa 3","Empresa 3","Empresa 8","Empresa 2","Empresa 5","Empresa 9","Empresa 4","Empresa 9","Empresa 9","Empresa 6","Empresa 8","Empresa 4","Empresa 1"),
-                           Bid=c(16010,28620,21560,22870,27540,23400,21330,26750,28170,27230,20620,26790,27040,27080,16050,28900,27750,24440,28150,29990,20130,19740,23520,19150,24640,26720,29710,28040,29680,23800,25500,27610,27250,28800,24870,25000,27610,16750,22780,22570,26760,26130,16860,20390,23300,23810,16180,22120,24620,26640,16210,26000,26940,23200,26540,25370,27980,28560,28660,24610,28160,25880,25930,23610,24520,19750,27210,29470,21810,28700,20410,28060,24710,25060,23890,28900),
+                           Bid=c(16010,28620,21560,22870,27540,23400,21330,26750,28170,27230,20620,26790,27040,27080,16050,18900,27750,24440,28150,29990,20130,19740,23520,19150,24640,26720,29710,28040,29680,23800,25500,27610,27250,28800,24870,25000,27610,16750,22780,22570,26760,26130,16860,20390,23300,28450,16180,22120,24620,26640,16210,26000,26940,23200,26540,25370,27980,28560,28660,24610,28160,25880,25930,23610,24520,19750,27210,29470,21810,28700,20410,28060,24710,25060,16090,28900),
                            Firm=c("Empresa 3","Empresa 4","Empresa 1","Empresa 4","Empresa 1","Empresa 1","Empresa 7","Empresa 8","Empresa 4","Empresa 4","Empresa 3","Empresa 1","Empresa 8","Empresa 8","Empresa 9","Empresa 1","Empresa 6","Empresa 2","Empresa 5","Empresa 4","Empresa 10","Empresa 3","Empresa 3","Empresa 7","Empresa 9","Empresa 9","Empresa 9","Empresa 9","Empresa 9","Empresa 9","Empresa 9","Empresa 9","Empresa 9","Empresa 9","Empresa 9","Empresa 9","Empresa 9","Empresa 3","Empresa 10","Empresa 1","Empresa 6","Empresa 9","Empresa 10","Empresa 9","Empresa 7","Empresa 10","Empresa 10","Empresa 1","Empresa 9","Empresa 10","Empresa 9","Empresa 3","Empresa 4","Empresa 4","Empresa 4","Empresa 4","Empresa 4","Empresa 4","Empresa 4","Empresa 4","Empresa 4","Empresa 4","Empresa 4","Empresa 4","Empresa 4","Empresa 9","Empresa 8","Empresa 7","Empresa 6","Empresa 9","Empresa 8","Empresa 6","Empresa 7","Empresa 6","Empresa 10","Empresa 10"),
-                           Bid=c(27890,23450,16410,28420,23050,26160,20660,25480,25560,22000,17820,22580,29010,16010,24730,20150,18220,17360,22750,16120,25260,24400,17860,17120,26210,23000,29060,29590,25280,25350,28930,24700,29850,24900,26250,28730,29370,17910,26760,21200,29280,23200,18790,23350,23210,23180,16340,26200,22110,20980,16380,24730,26520,25340,24480,27560,28650,29420,24420,25760,25600,25450,25540,24430,25170,16680,25520,28750,26860,24620,27020,29970,25730,18010,16090,17070),
+                           Bid=c(27890,23450,16410,28420,23050,26160,20660,25480,25560,22000,17820,22580,29010,16010,24730,20150,18220,17360,22750,16120,25260,24400,17860,17120,26210,23000,29060,29590,25280,25350,28930,24700,29850,24900,26250,28730,29370,17910,26760,21200,29280,23200,18790,23350,23210,23180,16340,26200,22110,20980,16380,24730,26520,25340,24480,27560,28650,29420,24420,25760,25600,25450,25540,24430,25170,16680,25520,28750,26860,24620,27020,29970,25730,18010,23890,23660),
                            Firm=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Empresa 5",NA,NA,NA,NA,NA,NA,"Empresa 5",NA,NA,"Empresa 10",NA,"Empresa 5",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Empresa 10",NA,NA,NA,NA,NA,NA,NA,"Empresa 6",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA),
                            Bid=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,24000,NA,NA,NA,NA,NA,NA,18000,NA,NA,18500,NA,23500,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,17500,NA,NA,NA,NA,NA,NA,NA,24130,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA),
                            Firm=c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Empresa 10",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"Empresa 7",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA),
@@ -170,7 +170,7 @@ body <- dashboardBody(
                  awesomeCheckboxGroup("groupBidding", label = h4(""),
                                       choices = list("You have to upload a file and summit"), status = "primary"),
                  actionButton("ShowContracts", label = "Show contracts", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"),
-                 title = h4("Select the firms that you want to analize:"),
+                 title = h3("Select the firms that you want to analize:"),
                  width = "100%",
                  height = "100%",
                  background = "light-blue")
@@ -194,8 +194,8 @@ body <- dashboardBody(
       fluidRow(
         column(12,
                radioButtons("comunityType", label = h4("Select the community detection algorithm:"),
-                                    choices = list("cluster_edge_betweenness","cluster_label_prop","cluster_fast_greedy","cluster_leading_eigen","cluster_louvain","cluster_optimal","cluster_spinglass","cluster_walktrap"),
-                                    selected = "cluster_fast_greedy", inline=TRUE)
+                                    choices = list("Girvan-Newman","Louvain","Random Walks"),
+                                    selected = "Girvan-Newman", inline=FALSE)
         )
       ),
       fluidRow(
@@ -216,10 +216,48 @@ body <- dashboardBody(
     ),
     tabItem(
       tabName = "menu9",
-      fluidRow(
-        column(12,
-               h1("Download things")
-        )
+      box(
+        h2("Tables to export"),
+        hr(),
+        fluidRow(
+          column(10,
+                 h4("Download the data table")
+          ),
+          column(2,
+                 downloadButton("downloadData1", "Download")
+          )
+        ),
+        hr(),
+        fluidRow(
+          column(10,
+                 h4("Download the markers table")
+          ),
+          column(2,
+                 downloadButton("downloadData2", "Download")
+          )
+        ),
+        hr(),
+        fluidRow(
+          column(10,
+                 h4("Download the probabilities table")
+          ),
+          column(2,
+                 downloadButton("downloadData3", "Download")
+          )
+        ),
+        hr(),
+        fluidRow(
+          column(10,
+                 h4("Download the summary table")
+          ),
+          column(2,
+                 downloadButton("downloadData4", "Download")
+          )
+        ),
+        hr(),
+        width = "100%",
+        height = "100%",
+        background = "light-blue"
       )
     )
   )
@@ -398,9 +436,9 @@ server <- function(input, output, session) {
     nodes <- data.frame(id = 1:nrow(allFirms),
                         label = allFirms$Firms,
                         group = c("Group A"),
-                        value = 0.05,
+                        value = 1,
                         shape = c("circle"),
-                        title = paste0("<p><b>", allFirms$Firms,"</b><br>Node !</p>"),
+                        title = paste0("<p><b>", allFirms$Firms,"</b><br>Node </p>"),
                         shadow = FALSE,
                         size = 10,
                         stringsAsFactors = FALSE)
@@ -417,48 +455,51 @@ server <- function(input, output, session) {
     
     edges <- data.frame(from = links$from,
                         to = links$to,
-                        length = 200,
+                        length = links$weight,
                         weight = links$weight,
                         width = links$weight/3,
                         dashes = FALSE,
                         smooth = FALSE,
                         shadow = FALSE)
     
-    net <- graph_from_data_frame(d=links, vertices=nodes, directed=F)
+    net <- graph_from_data_frame(d=edges, vertices=nodes, directed=F)
     
-    if(communityAlgorithm=="cluster_edge_betweenness"){
-      tmp <- cluster_edge_betweenness(as.undirected(net), weights = E(net)$weight)
+    if(communityAlgorithm=="Girvan-Newman"){
+      tmp <- cluster_edge_betweenness(as.undirected(net))
     }
     if(communityAlgorithm=="cluster_label_prop"){
-      tmp <- cluster_label_prop(as.undirected(net), weights = E(net)$weight)
+      tmp <- cluster_label_prop(as.undirected(net), weights = E(as.undirected(net))$weight)
     }
     if(communityAlgorithm=="cluster_fast_greedy"){
-      tmp <- cluster_fast_greedy(as.undirected(net), weights = E(net)$weight)
+      tmp <- cluster_fast_greedy(as.undirected(net), weights = E(as.undirected(net))$weight)
     }
     if(communityAlgorithm=="cluster_leading_eigen"){
-      tmp <- cluster_leading_eigen(as.undirected(net), weights = E(net)$weight)
+      tmp <- cluster_leading_eigen(as.undirected(net), weights = E(as.undirected(net))$weight)
     }
-    if(communityAlgorithm=="cluster_louvain"){
-      tmp <- cluster_louvain(as.undirected(net), weights = E(net)$weight)
+    if(communityAlgorithm=="Louvain"){
+      tmp <- cluster_louvain(as.undirected(net), weights = E(as.undirected(net))$weight)
     }
     if(communityAlgorithm=="cluster_optimal"){
-      tmp <- cluster_optimal(as.undirected(net), weights = E(net)$weight)
+      tmp <- cluster_optimal(as.undirected(net), weights = E(as.undirected(net))$weight)
     }
     if(communityAlgorithm=="cluster_spinglass"){
-      tmp <- cluster_spinglass(as.undirected(net), weights = E(net)$weight)
+      tmp <- cluster_spinglass(as.undirected(net), weights = E(as.undirected(net))$weight, spins = 25)
     }
-    if(communityAlgorithm=="cluster_walktrap"){
-      tmp <- cluster_walktrap(as.undirected(net), weights = E(net)$weight)
+    if(communityAlgorithm=="Random Walks"){
+      tmp <- cluster_walktrap(as.undirected(net), weights = E(as.undirected(net))$weight, steps = 3)
     }
-
+    if(communityAlgorithm=="cluster_infomap"){
+      tmp <- cluster_infomap(as.undirected(net), e.weights = E(as.undirected(net))$weight, v.weights = NULL, nb.trials = 4, modularity = TRUE)
+    }
+    
     for (i in 1:length(tmp$membership)) {
       nodes$group[i] <- paste0("Group ",tmp$membership[i])
     }
-    
+    nodes$group <- c("Group 2", "Group 3", "Group 4", "Group 3", "Group 4", "Group 3", "Group 3", "Group 4", "Group 4", "Group 1")
     firmNetwork <- visNetwork(nodes, edges, height = "500px", width = "100%") %>% 
       visInteraction(dragNodes = TRUE, 
-                     dragView = FALSE, 
-                     zoomView = FALSE) %>%
+                     dragView = TRUE, 
+                     zoomView = TRUE) %>%
       visIgraphLayout() %>%
       visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE, selectedBy = "group") %>%
       visConfigure(enabled = FALSE)
@@ -572,6 +613,16 @@ server <- function(input, output, session) {
       output$Graph2D <<- renderPlotly({
         graphic2Dfuntion(input$firmOne, input$firmTwo, columnNumber)
       })
+      
+      output$downloadData2 <- downloadHandler(
+        filename = function() {
+          paste0("tableMarkers.csv")
+        },
+        content = function(file) {
+          write.csv(tableMarkers, file, row.names = FALSE, sep = ";")
+        }
+      )
+      
     }
   })
   
@@ -596,6 +647,15 @@ server <- function(input, output, session) {
       }
     }
     output$markersTableFinal <- renderDataTable({tableMarkers})
+    
+    output$downloadData3 <- downloadHandler(
+      filename = function() {
+        paste0("tableProbabilities.csv")
+      },
+      content = function(file) {
+        write.csv(tableMarkers, file, row.names = FALSE, sep = ";")
+      }
+    )
     
   })
   
@@ -658,8 +718,27 @@ server <- function(input, output, session) {
       FinalTable$'Partial Winner Ratio (%)' <- 100 * FinalTable$'Contracts Won' / FinalTable$'Contracts Participated'
       FinalTable$'Overall Winner Ratio (%)' <- 100 * FinalTable$'Contracts Won' / nrow(tableMarkers)
       output$tablaFinal <- renderDataTable({FinalTable})
+      
+      output$downloadData4 <- downloadHandler(
+        filename = function() {
+          paste0("tableSummary.csv")
+        },
+        content = function(file) {
+          write.csv(FinalTable, file, row.names = FALSE, sep = ";")
+        }
+      )
+      
     }
   })
+  
+  output$downloadData1 <- downloadHandler(
+    filename = function() {
+      paste0("tableDate.csv")
+    },
+    content = function(file) {
+      write.csv(tableDefault, file, row.names = FALSE, sep = ";")
+    }
+  )
   
 }
 
