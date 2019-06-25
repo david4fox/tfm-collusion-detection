@@ -740,6 +740,33 @@ server <- function(input, output, session) {
     }
   )
   
+  output$downloadData2 <- downloadHandler(
+    filename = function() {
+      paste0("tableMarkers.csv")
+    },
+    content = function(file) {
+      write.csv(data.frame(Error="This table is not found"), file, row.names = FALSE, sep = ";")
+    }
+  )
+  
+  output$downloadData3 <- downloadHandler(
+    filename = function() {
+      paste0("tableProbabilities.csv")
+    },
+    content = function(file) {
+      write.csv(data.frame(Error="This table is not found"), file, row.names = FALSE, sep = ";")
+    }
+  )
+  
+  output$downloadData4 <- downloadHandler(
+    filename = function() {
+      paste0("tableSummary.csv")
+    },
+    content = function(file) {
+      write.csv(data.frame(Error="This table is not found"), file, row.names = FALSE, sep = ";")
+    }
+  )
+  
 }
 
 shinyApp(ui, server, options = list(launch.browser=TRUE))
