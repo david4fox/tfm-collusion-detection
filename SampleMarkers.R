@@ -37,7 +37,7 @@ sidebar <- dashboardSidebar(
   sidebarMenu(
     sliderInput(inputId = "numberOfContracts", label = "Number of contracts :", min = 1, max = 10000, value = numberOfContractsDefault, width = "100%", round = TRUE),
     sliderInput(inputId = "rangeOfBids", label = "Number of bids :", min = 5, max = 100, value = rangeOfBidsDefault, width = "100%",ticks = TRUE),
-    sliderInput(inputId = "rangeOfPrices", label = "Range of prices :", min = 50, max = 1200000, value = rangeOfPricesDefault, width = "100%",ticks = TRUE),
+    sliderInput(inputId = "rangeOfPrices", label = "Range of prices :", min = 50, max = 1000000, value = rangeOfPricesDefault, width = "100%",ticks = TRUE),
     menuItem("Relative Distance", tabName = "menu1", icon = icon("dashboard")),
     menuItem("Coeficient of Variation", tabName = "menu2", icon = icon("table")),
     menuItem("Data table", tabName = "menu3", icon = icon("table")),

@@ -166,25 +166,28 @@ body <- dashboardBody(
       tabName = "menu6",
       fluidRow(
         column(6,
-               fluidRow(
-                 column(8,
-                        box(
-                          checkboxGroupButtons("groupBidding", label = h4("Select the firms that you want to analize:"),individual = TRUE, checkIcon = icon("thumbs-up"),
-                                               choices = list("You have to upload a file and summit"), direction = "vertical", status = "warning"),
-                          actionButton("ShowContracts", label = "Show contracts", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"),
-                          width = "100%",
-                          height = "100%",
-                          background = "aqua")
+               box(
+                 awesomeCheckboxGroup("groupBidding", label = h4(""),
+                                      choices = list("You have to upload a file and summit"), status = "primary"),
+                 actionButton("ShowContracts", label = "Show contracts", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"),
+                 title = h4("Select the firms that you want to analize:"),
+                 width = "100%",
+                 height = "100%",
+                 background = "light-blue")
+               ),
+        column(6,
+               box(
+                 br(),
+                 h4("The contracts in which the selected firms have bid together are the following :"),
+                 hr(),
+                 br(),
+                 tableOutput("contractsSame"),
+                 width = "100%",
+                 height = "100%",
+                 background = "light-blue"
                  )
                )
-        ),
-        column(6,
-               h3("The contracts in which the selected firms have bid together are the following :"),
-               br(),
-               tableOutput("contractsSame")
         )
-      )
-      
     ),
     tabItem(
       tabName = "menu7",
@@ -206,7 +209,7 @@ body <- dashboardBody(
       tabName = "menu8",
       fluidRow(
         column(12,
-               h1("Final table"),
+               h1("Summary table"),
                dataTableOutput("tablaFinal")
         )
       )
@@ -603,9 +606,9 @@ server <- function(input, output, session) {
       x <- input$groupBidding
       # Can also set the label and select items
       updateCheckboxGroupButtons(session, "groupBidding",
-                                 label = "Select the firms that you want to analize:",
+                                 label = "",
                                  choices = allFirms[,1],
-                                 selected = "No Firm selected"
+                                 selected = NULL
       )
       
       x <- input$firmOne
@@ -631,18 +634,29 @@ server <- function(input, output, session) {
   
   observeEvent(input$ShowContracts,{
     
-    selectedFirmsName<-input$groupBidding
-    functionCommunContracts(selectedFirmsName,allFirms,tableFirms)
-    output$contractsSame <- renderTable(communContracts, colnames = FALSE)
+    if(length(input$groupBidding) != 0){
+      selectedFirmsName <- input$groupBidding
+      functionCommunContracts(selectedFirmsName,allFirms,tableFirms)
+      output$contractsSame <- renderTable(communContracts, colnames = FALSE)
+    }else{
+      output$contractsSame <- renderTable(data.frame(), colnames = FALSE)
+    }
     
   })
   
   observeEvent(input$DoIt,{
     if(requirement2=="Hello"){
-      FinalTable$Contracts <- 0
+      tableMarkers <- read.csv("./tableMarkers.csv", header = TRUE)
+      FinalTable$'Contracts Won' <- 0
+      FinalTable$'Contracts Participated' <- 0
+      FinalTable$'Partial Winner Ratio (%)' <- 0
+      FinalTable$'Overall Winner Ratio (%)' <- 0
       for(i in c(allFirms[[1]])){
-        FinalTable$Contracts[which(FinalTable[1]==i)] <- length(which(tableMarkers[5]==i))
+        FinalTable$'Contracts Won'[which(FinalTable[1]==i)] <- length(which(tableMarkers[5]==i))
+        FinalTable$'Contracts Participated'[which(FinalTable[1]==i)] <- nrow(functionCommunContracts(i,allFirms,tableFirms))
       }
+      FinalTable$'Partial Winner Ratio (%)' <- 100 * FinalTable$'Contracts Won' / FinalTable$'Contracts Participated'
+      FinalTable$'Overall Winner Ratio (%)' <- 100 * FinalTable$'Contracts Won' / nrow(tableMarkers)
       output$tablaFinal <- renderDataTable({FinalTable})
     }
   })
