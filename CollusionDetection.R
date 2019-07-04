@@ -130,22 +130,20 @@ body <- dashboardBody(
     tabItem(
       tabName = "menu3",
       fluidRow(
-        column(8,
+        column(4,
                box(fluidRow(
-                 column(4, radioButtons("firmOne", label = h4("Select one firm:"),
+                 column(5, radioButtons("firmOne", label = h5("Select one firm:"),
                                         choices = list("You have to upload a file and submit"), 
                                         selected = "You have to upload a file and submit")),
-                 column(4, radioButtons("firmTwo", label = h4("Select another different firm:"),
+                 column(5, radioButtons("firmTwo", label = h5("Select another different firm:"),
                                         choices = list("You have to upload a file and submit"), 
                                         selected = "You have to upload a file and submit"))
                ),
                title = "Select the firms that you want to compare:",
                width = "100%",
-               height = "100%",
+               height = "80%",
                background = "light-blue")
-        )
-      ),
-      fluidRow(
+        ),
         column(8,
                plotlyOutput("Graph2D")
         )
@@ -192,14 +190,12 @@ body <- dashboardBody(
     tabItem(
       tabName = "menu7",
       fluidRow(
-        column(12,
+        column(3,
                radioButtons("comunityType", label = h4("Select the community detection algorithm:"),
                                     choices = list("Girvan-Newman","Louvain","Random Walks"),
                                     selected = "Girvan-Newman", inline=FALSE)
-        )
-      ),
-      fluidRow(
-        column(12,
+        ),
+        column(9,
                h1("Firm Network"),
                visNetworkOutput("network")
         )
