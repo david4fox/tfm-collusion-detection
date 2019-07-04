@@ -151,8 +151,9 @@ body <- dashboardBody(
     ),
     tabItem(
       tabName = "menu4",
-      h3("Coeficient of Variation over time"),
-      plotlyOutput("GraphCV")
+      plotlyOutput("GraphCV"),
+      br(),
+      plotlyOutput("GraphRD")
     ),
     tabItem(
       tabName = "menu5",
@@ -598,10 +599,23 @@ server <- function(input, output, session) {
         layout(title = "Coeficient of Variation over time", titlefont = list(size = 20,color = 'rgb(47, 47, 147)'),
                yaxis = list(linecolor = toRGB("black"),color = toRGB("black"),title = "CV", titlefont = list(size = 18,color = 'rgb(0, 0, 0)'), tickfont = list(size = 12,color = 'rgb(0, 0, 0)')),
                xaxis = list(linecolor = toRGB("black"),color = toRGB("black"),title = "Date", titlefont = list(size = 18,color = 'rgb(0, 0, 0)'), tickfont = list(size = 12,color = 'rgb(0, 0, 0)')),
-               margin = list(t = 75, b = 50,r = 10,l = 80), plot_bgcolor = 'rgb(255, 255, 255)', paper_bgcolor  = 'rgb(186, 186, 186)', barmode = 'group', bargap = 10)
+               margin = list(t = 75, b = 50,r = 10,l = 80), plot_bgcolor = 'rgb(255, 255, 255)', paper_bgcolor  = 'rgb(150, 200, 255)', barmode = 'group', bargap = 10)
       
       output$GraphCV <<- renderPlotly({
         CVgraph
+      })
+      
+      tmp <- data.frame("RD"=tableMarkers$RD)
+      tmp$Date <- tableCSV$Date
+      
+      RDgraph <<- plot_ly(data = tmp, x =~Date, y =~RD, type = "scatter",mode = "markers" , name="Competitive", marker = list(color = 'rgb(100, 150, 255)',line = list(color = 'rgb(0, 0, 255)', width = 0.5))) %>%
+        layout(title = "Relative Distance over time", titlefont = list(size = 20,color = 'rgb(47, 47, 147)'),
+               yaxis = list(linecolor = toRGB("black"),color = toRGB("black"),title = "CV", titlefont = list(size = 18,color = 'rgb(0, 0, 0)'), tickfont = list(size = 12,color = 'rgb(0, 0, 0)')),
+               xaxis = list(linecolor = toRGB("black"),color = toRGB("black"),title = "Date", titlefont = list(size = 18,color = 'rgb(0, 0, 0)'), tickfont = list(size = 12,color = 'rgb(0, 0, 0)')),
+               margin = list(t = 75, b = 50,r = 10,l = 80), plot_bgcolor = 'rgb(255, 255, 255)', paper_bgcolor  = 'rgb(150, 200, 255)', barmode = 'group', bargap = 10)
+      
+      output$GraphRD <<- renderPlotly({
+        RDgraph
       })
       
       output$markersTable <- renderDataTable({tableMarkers})
