@@ -10,7 +10,7 @@ library("sna")
 library("ndtv")
 
 ## Inicialization
-rangeOfBidsDefault <- c(5,12)
+rangeOfBidsDefault <- c(3,12)
 numberOfContractsDefault <- 10000
 xLimtDefault <- 5
 yLimtDefault <- 100
@@ -18,16 +18,12 @@ insertRDDefault <- 1
 insertProbabilityDefault <- 0.95
 numberOfBinsRDDefault <- 500
 numberOfBinsCVDefault <- 100
-rangeOfPricesDefault <- c(100000,600000)
+rangeOfPricesDefault <- c(60,100)
 
 ## Aplication definition
 header <- dashboardHeader(
   title = "Markers",
   titleWidth = 230,
-  tags$li(a(href = 'https://www.ubu.es/',
-            img(src = "https://www.ubu.es/sites/default/files/portal_page/images/escudo_color_1l_dcha.jpg", title = "Universidad de Burgos", height = "50px"),
-            style = "padding-top:10px; padding-bottom:10px;"),
-          class = "dropdown"),
   tags$li(a(href = 'http://www.google.com/',
             icon("power-off"),
             title = "Back to Apps Home"),
@@ -36,8 +32,8 @@ header <- dashboardHeader(
 sidebar <- dashboardSidebar(
   sidebarMenu(
     sliderInput(inputId = "numberOfContracts", label = "Number of contracts :", min = 1, max = 10000, value = numberOfContractsDefault, width = "100%", round = TRUE),
-    sliderInput(inputId = "rangeOfBids", label = "Number of bids :", min = 5, max = 100, value = rangeOfBidsDefault, width = "100%",ticks = TRUE),
-    sliderInput(inputId = "rangeOfPrices", label = "Range of prices :", min = 50, max = 1000000, value = rangeOfPricesDefault, width = "100%",ticks = TRUE),
+    sliderInput(inputId = "rangeOfBids", label = "Number of bids :", min = 3, max = 100, value = rangeOfBidsDefault, width = "100%",ticks = TRUE),
+    sliderInput(inputId = "rangeOfPrices", label = "Range of prices :", min = 50, max = 1000, value = rangeOfPricesDefault, width = "100%",ticks = TRUE),
     menuItem("Relative Distance", tabName = "menu1", icon = icon("dashboard")),
     menuItem("Coeficient of Variation", tabName = "menu2", icon = icon("table")),
     menuItem("Data table", tabName = "menu3", icon = icon("table")),
@@ -89,7 +85,7 @@ body <- dashboardBody(
         )
       ),
       fluidRow(
-        column(8,h5("Something more")),
+        column(8,h5("")),
         column(4, sliderInput(inputId = "numberOfBinsCV", label = "Number of bins :", min = 10, max = 1000, value = numberOfBinsCVDefault, width = "100%"))
       )
     ),

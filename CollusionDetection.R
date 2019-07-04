@@ -87,7 +87,7 @@ body <- dashboardBody(
           column(2,
                  h6("")),
           column(2,
-                 actionButton("summitDefault", label = "Summit default", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth")
+                 actionButton("submitDefault", label = "Submit default", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth")
                  )
           ),
       width = "500px",
@@ -98,12 +98,12 @@ body <- dashboardBody(
         fluidRow(
           column(5, fileInput("xlsxFile", label = h4("Upload a xlsx file"), multiple = FALSE,placeholder = "No file selected",buttonLabel = "Browse...",width = "100%",accept = c(".xlsx"))),
           column(2, h6("")),
-          column(2, actionButton("summitXLSX", label = "Summit Excel", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
+          column(2, actionButton("submitXLSX", label = "Submit Excel", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
           ),
         fluidRow(
           column(5, fileInput("csvFile", label = h4("Upload a csv file"), multiple = FALSE, placeholder = "No file selected",buttonLabel = "Browse...",width = "100%",accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv"))),
           column(2, radioButtons("sep", h4("Separator"), choices = c(Comma = ",", Semicolon = ";", Tab = "\t"), selected = ";", inline = TRUE)),
-          column(2, actionButton("summitCSV", label = "Summit CSV", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
+          column(2, actionButton("submitCSV", label = "Submit CSV", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"))
           ),
         numericInput("numberColumn", label = h4("Introduce the number of aditional columns with information relative to a contract"), value = 0, width = "41%", min = 0, max = 100,step = 1),
         title = "If you want to upload a file, unfold the drop-down",
@@ -133,11 +133,11 @@ body <- dashboardBody(
         column(8,
                box(fluidRow(
                  column(4, radioButtons("firmOne", label = h4("Select one firm:"),
-                                        choices = list("You have to upload a file and summit"), 
-                                        selected = "You have to upload a file and summit")),
+                                        choices = list("You have to upload a file and submit"), 
+                                        selected = "You have to upload a file and submit")),
                  column(4, radioButtons("firmTwo", label = h4("Select another different firm:"),
-                                        choices = list("You have to upload a file and summit"), 
-                                        selected = "You have to upload a file and summit"))
+                                        choices = list("You have to upload a file and submit"), 
+                                        selected = "You have to upload a file and submit"))
                ),
                title = "Select the firms that you want to compare:",
                width = "100%",
@@ -168,7 +168,7 @@ body <- dashboardBody(
         column(6,
                box(
                  awesomeCheckboxGroup("groupBidding", label = h4(""),
-                                      choices = list("You have to upload a file and summit"), status = "primary"),
+                                      choices = list("You have to upload a file and submit"), status = "primary"),
                  actionButton("ShowContracts", label = "Show contracts", icon = icon("thumbs-up"), style="color: white; background-color: #000F89; border-color: #0011B7; padding:10; margin:0; position:rigth"),
                  title = h3("Select the firms that you want to analize:"),
                  width = "100%",
@@ -557,12 +557,12 @@ server <- function(input, output, session) {
     defaultValues <- input$defaultData
   })
   
-  observeEvent(input$summitDefault, {
+  observeEvent(input$submitDefault, {
     write.csv(tableDefault,"./tableCSV.csv", row.names=FALSE)
     requirement1 <<- "Hello"
   })
   
-  observeEvent((input$summitCSV|input$summitXLSX|input$summitDefault)&input$ShowSuspicious ,{
+  observeEvent((input$submitCSV|input$submitXLSX|input$submitDefault)&input$ShowSuspicious ,{
     
     if(requirement1=="Hello"){
       
@@ -659,7 +659,7 @@ server <- function(input, output, session) {
     
   })
   
-  observeEvent(input$summitCSV|input$summitXLSX|input$summitDefault,{
+  observeEvent(input$submitCSV|input$submitXLSX|input$submitDefault,{
     if(requirement1=="Hello"){
       functionFirmList(columnNumber)
       
